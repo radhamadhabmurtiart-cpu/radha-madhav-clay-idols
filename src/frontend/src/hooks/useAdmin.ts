@@ -1,16 +1,25 @@
 import { createActor } from "@/backend";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
-import { useEffect, useState } from "react";
+import { AuthClient } from "@dfinity/auth-client";
+import { useEffect, useRef, useState } from "react";
+
+// Internet Identity URL — same URL used by @caffeineai/core-infrastructure internally
+const II_URL = "https://identity.ic0.app";
 
 /**
  * Admin authentication hook using Internet Identity.
- * After identity is confirmed, calls isAdminCaller() on the backend to verify
- * that the logged-in principal is the site owner. Only the owner can access admin.
+ *
+ * Key fix for Netlify/mobile production:
+ *   We create our OWN AuthClient instance in a useEffect on mount and store it
+ *   in a ref. The login button stays disabled until this instance is ready.
+ *   On click, we call authClientRef.current.login() directly — this guarantees
+ *   the AuthClient is always initialized before login() is invoked, regardless
+ *   of any timing differences in @caffeineai/core-infrastructure on production builds.
  */
 export function useAdmin() {
   const {
     identity,
-    login,
+    login: iiLogin,
     clear,
     loginStatus,
     isInitializing,
@@ -24,18 +33,48 @@ export function useAdmin() {
   const isAuthenticated = !!identity;
   const isLoading = isInitializing || isLoggingIn;
 
+  // Our own AuthClient instance created eagerly on mount
+  const authClientRef = useRef<AuthClient | null>(null);
+  const [authClientReady, setAuthClientReady] = useState(false);
+
+  // Create AuthClient on mount — this is the critical fix.
+  // AuthClient.create() must be called outside any click handler so the
+  // instance is fully ready before the user ever touches the button.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initAuthClient() {
+      try {
+        const client = await AuthClient.create();
+        if (!cancelled) {
+          authClientRef.current = client;
+          setAuthClientReady(true);
+        }
+      } catch {
+        // If creation fails we fall back to the iiLogin wrapper below
+        if (!cancelled) {
+          setAuthClientReady(true); // unblock the button; login attempt will surface the real error
+        }
+      }
+    }
+
+    initAuthClient();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminLoading, setIsAdminLoading] = useState(true);
 
   useEffect(() => {
-    // Reset when identity disappears (logout)
     if (!isAuthenticated) {
       setIsAdmin(false);
       setIsAdminLoading(false);
       return;
     }
 
-    // Wait for identity to fully initialize and actor to be ready
     if (isInitializing || isActorFetching || !actor) {
       setIsAdminLoading(true);
       return;
@@ -46,15 +85,12 @@ export function useAdmin() {
 
     async function checkAdmin() {
       try {
-        // isAdminCaller() is available on the backend but may not be in generated typings.
-        // We cast actor to access it safely.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const actorAny = actor as any;
         if (typeof actorAny.isAdminCaller === "function") {
           const result: boolean = await actorAny.isAdminCaller();
           if (!cancelled) setIsAdmin(result);
         } else {
-          // If method doesn't exist in current bindings, fall back to false (safe)
           if (!cancelled) setIsAdmin(false);
         }
       } catch {
@@ -72,21 +108,48 @@ export function useAdmin() {
   }, [isAuthenticated, isInitializing, isActorFetching, actor]);
 
   /**
-   * Safe login wrapper — guards against calling login() before AuthClient
-   * is fully initialized. On Netlify production builds there can be a timing
-   * gap between page load and when InternetIdentityProvider finishes setting
-   * up the AuthClient; calling login() during that window throws the
-   * "AuthClient is not initialized yet" error.
+   * safeLogin — uses our eagerly-created AuthClient when available.
+   *
+   * Flow:
+   *  1. If our AuthClient ref is ready → call authClient.login() directly.
+   *     This is the production-safe path that avoids the "not initialized yet" error.
+   *  2. Fallback → delegate to useInternetIdentity's login() wrapper.
+   *
+   * The login button is disabled until both authClientReady AND !isInitializing,
+   * so this function should never be called in an unready state — but we guard
+   * defensively anyway.
    */
   function safeLogin() {
-    if (isInitializing) {
-      // AuthClient not ready yet — silently bail out.
-      // The button should already be disabled in this state, but this is a
-      // belt-and-suspenders guard for production timing differences.
+    if (!authClientReady || isInitializing) {
+      // Not ready yet — button should already be disabled, but guard anyway
       return;
     }
-    login();
+
+    if (authClientRef.current) {
+      // Use our own AuthClient instance directly — guaranteed to be initialized
+      authClientRef.current.login({
+        identityProvider: II_URL,
+        onSuccess: () => {
+          // Reload the page so @caffeineai/core-infrastructure picks up the
+          // new session from the same AuthClient storage
+          window.location.reload();
+        },
+        onError: (err?: string) => {
+          // Surface the error through the existing error state by falling back
+          // to the iiLogin path — it will re-attempt and capture the error
+          console.error("AuthClient login error:", err);
+          iiLogin();
+        },
+      });
+    } else {
+      // Fallback: delegate to the hook's own login
+      iiLogin();
+    }
   }
+
+  // The button should be disabled while either our AuthClient is creating
+  // OR the @caffeineai/core-infrastructure is still initializing
+  const isButtonDisabled = !authClientReady || isInitializing || isLoggingIn;
 
   return {
     identity,
@@ -94,7 +157,7 @@ export function useAdmin() {
     isLoading,
     isAdmin,
     isAdminLoading,
-    isInitializing,
+    isInitializing: isButtonDisabled, // reuse the same flag name so AdminLoginPage needs no changes
     isLoggingIn,
     isLoginError,
     loginError,
