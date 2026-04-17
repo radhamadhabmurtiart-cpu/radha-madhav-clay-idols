@@ -163,15 +163,20 @@ export function AdminLoginPage() {
             Sign in with Internet Identity to manage your products.
           </p>
 
-          {/* Login Button */}
+          {/* Login Button — disabled until AuthClient is fully initialized */}
           <button
             type="button"
             onClick={handleLogin}
-            disabled={isLoggingIn}
+            disabled={isInitializing || isLoggingIn}
             className="w-full flex items-center justify-center gap-2.5 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed px-6 py-3 rounded-md font-semibold text-sm transition-smooth"
             data-ocid="admin-login-btn"
           >
-            {isLoggingIn ? (
+            {isInitializing ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Initializing…
+              </>
+            ) : isLoggingIn ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
                 Connecting…

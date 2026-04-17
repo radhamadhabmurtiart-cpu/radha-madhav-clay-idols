@@ -71,6 +71,23 @@ export function useAdmin() {
     };
   }, [isAuthenticated, isInitializing, isActorFetching, actor]);
 
+  /**
+   * Safe login wrapper — guards against calling login() before AuthClient
+   * is fully initialized. On Netlify production builds there can be a timing
+   * gap between page load and when InternetIdentityProvider finishes setting
+   * up the AuthClient; calling login() during that window throws the
+   * "AuthClient is not initialized yet" error.
+   */
+  function safeLogin() {
+    if (isInitializing) {
+      // AuthClient not ready yet — silently bail out.
+      // The button should already be disabled in this state, but this is a
+      // belt-and-suspenders guard for production timing differences.
+      return;
+    }
+    login();
+  }
+
   return {
     identity,
     isAuthenticated,
@@ -82,7 +99,7 @@ export function useAdmin() {
     isLoginError,
     loginError,
     loginStatus,
-    login,
+    login: safeLogin,
     logout: clear,
   };
 }
