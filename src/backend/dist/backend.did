@@ -1,0 +1,117 @@
+type VisitorProfile = 
+ record {
+   name: text;
+   phone: text;
+   "principal": text;
+   registeredAt: int;
+ };
+type UpdateProductInput = 
+ record {
+   bulkAvailable: bool;
+   category: ProductCategory;
+   descriptionBn: text;
+   descriptionEn: text;
+   id: nat;
+   imageIds: vec text;
+   nameBn: text;
+   nameEn: text;
+   priceRangeMax: nat;
+   priceRangeMin: nat;
+   sizes: vec text;
+ };
+type ProductCategory = 
+ variant {
+   custom;
+   durga;
+   ganesh;
+   hanuman;
+   lakshmi;
+   saraswati;
+ };
+type Product = 
+ record {
+   bulkAvailable: bool;
+   category: ProductCategory;
+   createdAt: int;
+   descriptionBn: text;
+   descriptionEn: text;
+   id: nat;
+   imageIds: vec text;
+   nameBn: text;
+   nameEn: text;
+   priceRangeMax: nat;
+   priceRangeMin: nat;
+   sizes: vec text;
+   updatedAt: int;
+ };
+type InquiryRecord = 
+ record {
+   id: nat;
+   message: text;
+   name: text;
+   phone: text;
+   productInterest: text;
+   timestamp: int;
+ };
+type CategoryImage = 
+ record {
+   imageUrl: text;
+   slug: text;
+ };
+type AddProductInput = 
+ record {
+   bulkAvailable: bool;
+   category: ProductCategory;
+   descriptionBn: text;
+   descriptionEn: text;
+   imageIds: vec text;
+   nameBn: text;
+   nameEn: text;
+   priceRangeMax: nat;
+   priceRangeMin: nat;
+   sizes: vec text;
+ };
+service : {
+  addProduct: (input: AddProductInput) -> (variant {
+                                             err: text;
+                                             ok: Product;
+                                           });
+  deleteProduct: (id: nat) -> (variant {
+                                 err: text;
+                                 ok;
+                               });
+  getCategoryImage: (slug: text) -> (opt text) query;
+  getCategoryImages: () -> (vec CategoryImage) query;
+  getInquiries: () -> (variant {
+                         err: text;
+                         ok: vec InquiryRecord;
+                       });
+  getMyProfile: () -> (variant {
+                         err: text;
+                         ok: VisitorProfile;
+                       }) query;
+  getOwnerPrincipal: () -> (text) query;
+  getProduct: (id: nat) -> (opt Product) query;
+  getProducts: () -> (vec Product) query;
+  getVisitors: () -> (variant {
+                        err: text;
+                        ok: vec VisitorProfile;
+                      });
+  isAdminCaller: () -> (bool) query;
+  registerVisitor: (name: text, phone: text) ->
+   (variant {
+      err: text;
+      ok: VisitorProfile;
+    });
+  submitInquiry: (name: text, phone: text, productInterest: text, message:
+   text) -> (variant {
+               err: text;
+               ok: text;
+             });
+  updateCategoryImage: (slug: text, imageUrl: text) -> (bool);
+  updateProduct: (input: UpdateProductInput) ->
+   (variant {
+      err: text;
+      ok: Product;
+    });
+}

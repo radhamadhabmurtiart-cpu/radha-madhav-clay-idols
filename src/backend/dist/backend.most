@@ -1,0 +1,65 @@
+// Version: 1.0.0
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type InquiryRecord__990396962 =
+  {
+    id : Nat;
+    message : Text;
+    name : Text;
+    phone : Text;
+    productInterest : Text;
+    timestamp : Int
+  };
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type ProductCategory__528357766 =
+  {#custom; #durga; #ganesh; #hanuman; #lakshmi; #saraswati};
+type Product__247116600 =
+  {
+    bulkAvailable : Bool;
+    category : ProductCategory__528357766;
+    createdAt : Int;
+    descriptionBn : Text;
+    descriptionEn : Text;
+    id : Nat;
+    imageIds : [Text];
+    nameBn : Text;
+    nameEn : Text;
+    priceRangeMax : Nat;
+    priceRangeMin : Nat;
+    sizes : [Text];
+    updatedAt : Int
+  };
+type VisitorProfile__86261975 =
+  {name : Text; phone : Text; principal : Text; registeredAt : Int};
+actor {
+  stable var _nextInquiryId : Nat;
+  stable var _nextProductId : Nat;
+  stable categoryImages :
+    {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  stable inquiries :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?InquiryRecord__990396962]];
+      var elementIndex : Nat__490723111
+    };
+  stable nextInquiryId : {var value : Nat};
+  stable nextProductId : {var value : Nat};
+  stable ownerPrincipal : Principal;
+  stable products :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Product__247116600]];
+      var elementIndex : Nat__490723111
+    };
+  stable visitorProfiles :
+    {
+      var root : Node__46230540<Principal, VisitorProfile__86261975>;
+      var size : Nat__490723111
+    }
+};
