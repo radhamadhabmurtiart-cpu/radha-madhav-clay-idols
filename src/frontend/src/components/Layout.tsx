@@ -126,6 +126,7 @@ export function Layout({ children }: LayoutProps) {
   const [regPhone, setRegPhone] = useState("");
   const [regSubmitting, setRegSubmitting] = useState(false);
   const [regError, setRegError] = useState("");
+  const [regSuccess, setRegSuccess] = useState(false);
 
   // Show registration form when: authenticated, profile checked, and no name yet
   const showRegForm = isAuthenticated && profileChecked && !visitorName;
@@ -146,7 +147,14 @@ export function Layout({ children }: LayoutProps) {
     setRegError("");
     const ok = await registerVisitorProfile(regName.trim(), regPhone.trim());
     setRegSubmitting(false);
-    if (!ok) {
+    if (ok) {
+      setRegSuccess(true);
+      setRegName("");
+      setRegPhone("");
+      // Modal will auto-close when visitorName is set (showRegForm becomes false)
+      // Show success message briefly before that happens
+      setTimeout(() => setRegSuccess(false), 1500);
+    } else {
       setRegError(
         t({
           bn: "সংরক্ষণ ব্যর্থ হয়েছে, আবার চেষ্টা করুন",
@@ -224,6 +232,14 @@ export function Layout({ children }: LayoutProps) {
                   data-ocid="visitor-reg.error_state"
                 >
                   {regError}
+                </p>
+              )}
+              {regSuccess && (
+                <p
+                  className="text-sm text-green-600 font-medium"
+                  data-ocid="visitor-reg.success_state"
+                >
+                  {t({ bn: "সংরক্ষিত! ধন্যবাদ।", en: "Saved! Thank you." })}
                 </p>
               )}
               <Button
@@ -637,8 +653,8 @@ export function Layout({ children }: LayoutProps) {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      login();
+                    onClick={async () => {
+                      await login();
                       setMenuOpen(false);
                     }}
                     disabled={isLoggingIn}
