@@ -93,9 +93,17 @@ export function useUpdateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (input: UpdateProductInput) => {
-      if (!actor) throw new Error("Actor not ready");
+      if (!actor)
+        throw new Error("Actor not ready — please wait and try again.");
       const result = await actor.updateProduct(input);
-      if (result.__kind__ === "err") throw new Error(result.err);
+      if (result.__kind__ === "err") {
+        const msg =
+          typeof result.err === "string"
+            ? result.err
+            : "Update failed on server.";
+        console.error("updateProduct backend error:", msg);
+        throw new Error(msg);
+      }
       return result.ok;
     },
     onSuccess: (_data, input) => {
@@ -103,6 +111,9 @@ export function useUpdateProduct() {
       queryClient.invalidateQueries({
         queryKey: PRODUCT_KEYS.detail(input.id),
       });
+    },
+    onError: (err) => {
+      console.error("useUpdateProduct mutation error:", err);
     },
   });
 }

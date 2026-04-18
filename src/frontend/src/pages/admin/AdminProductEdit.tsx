@@ -118,13 +118,17 @@ export function AdminProductEditPage() {
       return;
     }
     try {
-      await updateProduct.mutateAsync(formDataToUpdateInput(productId, form));
+      // Read images directly from current state snapshot to avoid async race
+      // condition where form.imageIds may lag behind the images state update.
+      const currentImageIds = images.map((img) => img.dataUrl);
+      await updateProduct.mutateAsync(
+        formDataToUpdateInput(productId, form, currentImageIds),
+      );
       toast.success("Product updated successfully!");
-      // Go back to the previous page (admin dashboard or product list)
-      window.history.length > 1
-        ? window.history.back()
-        : navigate({ to: "/admin" });
+      // navigate(-1) for reliable back navigation; fall back to /admin
+      navigate({ to: "/admin" });
     } catch (err) {
+      console.error("Product update failed:", err);
       toast.error(
         err instanceof Error ? err.message : "Failed to update product.",
       );

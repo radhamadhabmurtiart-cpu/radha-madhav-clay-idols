@@ -59,7 +59,16 @@ export const EMPTY_PRODUCT_FORM: ProductFormData = {
   imageIds: [],
 };
 
-export function formDataToAddInput(data: ProductFormData): AddProductInput {
+// Safe BigInt parser — handles empty strings, NaN, and decimals gracefully
+function parsePrice(v: string): bigint {
+  const n = Number.parseInt(v, 10);
+  return BigInt(Number.isNaN(n) || n < 0 ? 0 : n);
+}
+
+export function formDataToAddInput(
+  data: ProductFormData,
+  imageIdsOverride?: string[],
+): AddProductInput {
   return {
     nameBn: data.nameBn.trim(),
     nameEn: data.nameEn.trim(),
@@ -70,20 +79,22 @@ export function formDataToAddInput(data: ProductFormData): AddProductInput {
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
-    priceRangeMin: BigInt(Number.parseInt(data.priceRangeMin, 10) || 0),
-    priceRangeMax: BigInt(Number.parseInt(data.priceRangeMax, 10) || 0),
+    priceRangeMin: parsePrice(data.priceRangeMin),
+    priceRangeMax: parsePrice(data.priceRangeMax),
     bulkAvailable: data.bulkAvailable,
-    imageIds: data.imageIds,
+    // Use override when provided (avoids async state race on submit)
+    imageIds: imageIdsOverride ?? data.imageIds,
   };
 }
 
 export function formDataToUpdateInput(
   id: bigint,
   data: ProductFormData,
+  imageIdsOverride?: string[],
 ): UpdateProductInput {
   return {
     id,
-    ...formDataToAddInput(data),
+    ...formDataToAddInput(data, imageIdsOverride),
   };
 }
 

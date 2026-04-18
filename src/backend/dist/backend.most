@@ -1,4 +1,4 @@
-// Version: 3.0.0
+// Version: 1.0.0
 type Data__791452850<K, V> =
   {var count : Nat__490723111; kvs : [var ?(K, V)]};
 type InquiryRecord__990396962 =
@@ -13,39 +13,10 @@ type InquiryRecord__990396962 =
 type Internal__8484328<K, V> =
   {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
 type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
-type List__415060402<T> = List__790383201<T>;
-type List__790383201<T> =
-  {
-    var blockIndex : Nat__490723111;
-    var blocks : [var [var ?T]];
-    var elementIndex : Nat__490723111
-  };
-type Map__158565046<K, V> = Map__297112838<K, V>;
-type Map__297112838<K, V> =
-  {var root : Node__46230540<K, V>; var size : Nat__490723111};
-type Map__605269027<K, V> = Map__158565046<K, V>;
 type Nat__490723111 = Nat__920180692;
 type Nat__920180692 = Nat;
 type Node__46230540<K, V> =
   {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
-type OldProductCategory__304516802 =
-  {#custom; #durga; #ganesh; #hanuman; #lakshmi; #saraswati};
-type OldProduct__278484740 =
-  {
-    bulkAvailable : Bool;
-    category : OldProductCategory__304516802;
-    createdAt : Int;
-    descriptionBn : Text;
-    descriptionEn : Text;
-    id : Nat;
-    imageIds : [Text];
-    nameBn : Text;
-    nameEn : Text;
-    priceRangeMax : Nat;
-    priceRangeMin : Nat;
-    sizes : [Text];
-    updatedAt : Int
-  };
 type ProductCategory__528357766 =
   {
     #banglaLakshmiGanesh;
@@ -78,17 +49,7 @@ type Product__247116600 =
   };
 type VisitorProfile__86261975 =
   {name : Text; phone : Text; principal : Text; registeredAt : Int};
-actor ({
-  stable var _nextInquiryId : Nat;
-  stable var _nextProductId : Nat;
-  in categoryImages : Map__605269027<Text, Text>;
-  in inquiries : List__415060402<InquiryRecord__990396962>;
-  in nextInquiryId : {var value : Nat};
-  in nextProductId : {var value : Nat};
-  stable ownerPrincipal : Principal;
-  in products : List__415060402<OldProduct__278484740>;
-  in visitorProfiles : Map__605269027<Principal, VisitorProfile__86261975>
-}, {
+actor {
   stable var _nextInquiryId : Nat;
   stable var _nextProductId : Nat;
   stable categoryImages :
@@ -113,4 +74,4 @@ actor ({
       var root : Node__46230540<Principal, VisitorProfile__86261975>;
       var size : Nat__490723111
     }
-}) ;
+};
