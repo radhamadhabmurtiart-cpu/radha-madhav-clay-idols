@@ -23,6 +23,11 @@ export interface AddProductInput {
   'priceRangeMin' : bigint,
 }
 export interface CategoryImage { 'slug' : string, 'imageUrl' : string }
+export interface CategoryInfo {
+  'nameBn' : string,
+  'nameEn' : string,
+  'slug' : string,
+}
 export interface InquiryRecord {
   'id' : bigint,
   'name' : string,
@@ -46,12 +51,17 @@ export interface Product {
   'priceRangeMax' : bigint,
   'priceRangeMin' : bigint,
 }
-export type ProductCategory = { 'lakshmi' : null } |
+export type ProductCategory = { 'diwaliLakshmiGanesh' : null } |
+  { 'radhaKrishna' : null } |
+  { 'lakshmi' : null } |
+  { 'vishwakarma' : null } |
   { 'custom' : null } |
   { 'saraswati' : null } |
-  { 'hanuman' : null } |
+  { 'kali' : null } |
   { 'ganesh' : null } |
-  { 'durga' : null };
+  { 'banglaLakshmiGanesh' : null } |
+  { 'durga' : null } |
+  { 'kartik' : null };
 export interface UpdateProductInput {
   'id' : bigint,
   'nameBn' : string,
@@ -80,6 +90,7 @@ export interface _SERVICE {
   'deleteProduct' : ActorMethod<[bigint], { 'ok' : null } | { 'err' : string }>,
   'getCategoryImage' : ActorMethod<[string], [] | [string]>,
   'getCategoryImages' : ActorMethod<[], Array<CategoryImage>>,
+  'getCategoryList' : ActorMethod<[], Array<CategoryInfo>>,
   'getInquiries' : ActorMethod<
     [],
     { 'ok' : Array<InquiryRecord> } |
@@ -93,6 +104,7 @@ export interface _SERVICE {
   'getOwnerPrincipal' : ActorMethod<[], string>,
   'getProduct' : ActorMethod<[bigint], [] | [Product]>,
   'getProducts' : ActorMethod<[], Array<Product>>,
+  'getProductsByCategory' : ActorMethod<[string], Array<Product>>,
   'getVisitors' : ActorMethod<
     [],
     { 'ok' : Array<VisitorProfile> } |

@@ -1,12 +1,13 @@
-import type {
-  AddProductInput,
-  Product,
+import {
+  type AddProductInput,
+  type Product,
   ProductCategory,
-  UpdateProductInput,
+  type UpdateProductInput,
 } from "@/backend.d";
 
 // Re-export backend types for admin use
-export type { Product, AddProductInput, UpdateProductInput, ProductCategory };
+export { ProductCategory };
+export type { Product, AddProductInput, UpdateProductInput };
 
 // Form data with string prices (converted to bigint before sending)
 export interface ProductFormData {
@@ -26,12 +27,23 @@ export const PRODUCT_CATEGORY_LABELS: Record<
   ProductCategory,
   { bn: string; en: string }
 > = {
-  ganesh: { bn: "গণেশ মূর্তি", en: "Ganesh Idol" },
-  lakshmi: { bn: "লক্ষ্মী মূর্তি", en: "Lakshmi Idol" },
-  durga: { bn: "দুর্গা মূর্তি", en: "Durga Idol" },
-  saraswati: { bn: "সরস্বতী মূর্তি", en: "Saraswati Idol" },
-  hanuman: { bn: "হনুমান মূর্তি", en: "Hanuman Idol" },
-  custom: { bn: "কাস্টম মূর্তি", en: "Custom Idol" },
+  banglaLakshmiGanesh: {
+    bn: "বাংলা লক্ষ্মী গণেশ মূর্তি",
+    en: "Bangla Lakshmi Ganesh (Hal Khata)",
+  },
+  ganesh: { bn: "মাটির গণেশ মূর্তি (পাইকারি)", en: "Clay Ganesh Idol (Wholesale)" },
+  vishwakarma: { bn: "মাটির বিশ্বকর্মা মূর্তি", en: "Clay Vishwakarma Idol" },
+  lakshmi: { bn: "মাটির লক্ষ্মী মূর্তি", en: "Clay Lakshmi Idol" },
+  diwaliLakshmiGanesh: {
+    bn: "দীপাবলি লক্ষ্মী গণেশ মূর্তি",
+    en: "Diwali Lakshmi Ganesh Idol",
+  },
+  kali: { bn: "মাটির কালী মূর্তি", en: "Clay Kali Idol" },
+  durga: { bn: "ছোট দুর্গা মূর্তি", en: "Small Durga Idol" },
+  radhaKrishna: { bn: "রাধা কৃষ্ণ মাটির মূর্তি", en: "Radha Krishna Clay Idol" },
+  kartik: { bn: "মাটির কার্তিক মূর্তি", en: "Clay Kartik Idol" },
+  saraswati: { bn: "মাটির সরস্বতী মূর্তি", en: "Clay Saraswati Idol" },
+  custom: { bn: "কাস্টম মাটির মূর্তি", en: "Custom Clay Idol" },
 };
 
 export const EMPTY_PRODUCT_FORM: ProductFormData = {
@@ -39,7 +51,7 @@ export const EMPTY_PRODUCT_FORM: ProductFormData = {
   nameEn: "",
   descriptionBn: "",
   descriptionEn: "",
-  category: "ganesh" as ProductCategory,
+  category: ProductCategory.ganesh,
   sizes: "",
   priceRangeMin: "",
   priceRangeMax: "",

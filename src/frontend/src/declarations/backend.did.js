@@ -9,12 +9,17 @@
 import { IDL } from '@icp-sdk/core/candid';
 
 export const ProductCategory = IDL.Variant({
+  'diwaliLakshmiGanesh' : IDL.Null,
+  'radhaKrishna' : IDL.Null,
   'lakshmi' : IDL.Null,
+  'vishwakarma' : IDL.Null,
   'custom' : IDL.Null,
   'saraswati' : IDL.Null,
-  'hanuman' : IDL.Null,
+  'kali' : IDL.Null,
   'ganesh' : IDL.Null,
+  'banglaLakshmiGanesh' : IDL.Null,
   'durga' : IDL.Null,
+  'kartik' : IDL.Null,
 });
 export const AddProductInput = IDL.Record({
   'nameBn' : IDL.Text,
@@ -46,6 +51,11 @@ export const Product = IDL.Record({
 export const CategoryImage = IDL.Record({
   'slug' : IDL.Text,
   'imageUrl' : IDL.Text,
+});
+export const CategoryInfo = IDL.Record({
+  'nameBn' : IDL.Text,
+  'nameEn' : IDL.Text,
+  'slug' : IDL.Text,
 });
 export const InquiryRecord = IDL.Record({
   'id' : IDL.Nat,
@@ -88,6 +98,7 @@ export const idlService = IDL.Service({
     ),
   'getCategoryImage' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
   'getCategoryImages' : IDL.Func([], [IDL.Vec(CategoryImage)], ['query']),
+  'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
   'getInquiries' : IDL.Func(
       [],
       [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
@@ -101,6 +112,7 @@ export const idlService = IDL.Service({
   'getOwnerPrincipal' : IDL.Func([], [IDL.Text], ['query']),
   'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], ['query']),
   'getProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+  'getProductsByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Product)], ['query']),
   'getVisitors' : IDL.Func(
       [],
       [IDL.Variant({ 'ok' : IDL.Vec(VisitorProfile), 'err' : IDL.Text })],
@@ -129,12 +141,17 @@ export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
   const ProductCategory = IDL.Variant({
+    'diwaliLakshmiGanesh' : IDL.Null,
+    'radhaKrishna' : IDL.Null,
     'lakshmi' : IDL.Null,
+    'vishwakarma' : IDL.Null,
     'custom' : IDL.Null,
     'saraswati' : IDL.Null,
-    'hanuman' : IDL.Null,
+    'kali' : IDL.Null,
     'ganesh' : IDL.Null,
+    'banglaLakshmiGanesh' : IDL.Null,
     'durga' : IDL.Null,
+    'kartik' : IDL.Null,
   });
   const AddProductInput = IDL.Record({
     'nameBn' : IDL.Text,
@@ -166,6 +183,11 @@ export const idlFactory = ({ IDL }) => {
   const CategoryImage = IDL.Record({
     'slug' : IDL.Text,
     'imageUrl' : IDL.Text,
+  });
+  const CategoryInfo = IDL.Record({
+    'nameBn' : IDL.Text,
+    'nameEn' : IDL.Text,
+    'slug' : IDL.Text,
   });
   const InquiryRecord = IDL.Record({
     'id' : IDL.Nat,
@@ -208,6 +230,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getCategoryImage' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
     'getCategoryImages' : IDL.Func([], [IDL.Vec(CategoryImage)], ['query']),
+    'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
     'getInquiries' : IDL.Func(
         [],
         [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
@@ -221,6 +244,11 @@ export const idlFactory = ({ IDL }) => {
     'getOwnerPrincipal' : IDL.Func([], [IDL.Text], ['query']),
     'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], ['query']),
     'getProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+    'getProductsByCategory' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(Product)],
+        ['query'],
+      ),
     'getVisitors' : IDL.Func(
         [],
         [IDL.Variant({ 'ok' : IDL.Vec(VisitorProfile), 'err' : IDL.Text })],

@@ -1,5 +1,5 @@
 import { createActor } from "@/backend";
-import type { InquiryRecord } from "@/backend";
+import type { CategoryInfo, InquiryRecord, Product } from "@/backend";
 import type { AddProductInput, UpdateProductInput } from "@/types/admin";
 import { useActor } from "@caffeineai/core-infrastructure";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +12,11 @@ function useProductActor() {
 export const PRODUCT_KEYS = {
   all: ["products"] as const,
   detail: (id: bigint) => ["products", id.toString()] as const,
+  byCategory: (slug: string) => ["products", "category", slug] as const,
+};
+
+export const CATEGORY_KEYS = {
+  all: ["categories"] as const,
 };
 
 // ─── Queries ───
@@ -37,6 +42,31 @@ export function useProduct(id: bigint | null) {
       return actor.getProduct(id);
     },
     enabled: !!actor && !isFetching && id !== null,
+  });
+}
+
+export function useCategories() {
+  const { actor, isFetching } = useProductActor();
+  return useQuery<CategoryInfo[]>({
+    queryKey: CATEGORY_KEYS.all,
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getCategoryList();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 5 * 60 * 1000, // categories rarely change
+  });
+}
+
+export function useProductsByCategory(slug: string) {
+  const { actor, isFetching } = useProductActor();
+  return useQuery<Product[]>({
+    queryKey: PRODUCT_KEYS.byCategory(slug),
+    queryFn: async () => {
+      if (!actor || !slug) return [];
+      return actor.getProductsByCategory(slug);
+    },
+    enabled: !!actor && !isFetching && !!slug,
   });
 }
 

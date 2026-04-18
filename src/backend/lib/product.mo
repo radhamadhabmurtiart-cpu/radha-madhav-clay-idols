@@ -10,6 +10,22 @@ module {
   public type AddProductInput = Types.AddProductInput;
   public type UpdateProductInput = Types.UpdateProductInput;
 
+  public func categoryToSlug(category : ProductCategory) : Text {
+    switch (category) {
+      case (#ganesh) { "clay-ganesh-idol-wholesale" };
+      case (#banglaLakshmiGanesh) { "bangla-lakshmi-ganesh-idol-hal-khata" };
+      case (#vishwakarma) { "clay-vishwakarma-idol" };
+      case (#lakshmi) { "clay-lakshmi-idol" };
+      case (#diwaliLakshmiGanesh) { "diwali-lakshmi-ganesh-idol" };
+      case (#kali) { "clay-kali-idol" };
+      case (#durga) { "small-durga-idol" };
+      case (#radhaKrishna) { "radha-krishna-clay-idol" };
+      case (#kartik) { "clay-kartik-idol" };
+      case (#saraswati) { "clay-saraswati-idol" };
+      case (#custom) { "custom-clay-idol" };
+    };
+  };
+
   public func add(
     products : List.List<Product>,
     nextId : Nat,
@@ -85,5 +101,10 @@ module {
 
   public func getById(products : List.List<Product>, id : Nat) : ?Product {
     products.find(func(p) { p.id == id })
+  };
+
+  public func getBySlug(products : List.List<Product>, slug : Text) : [Product] {
+    let arr = products.filter(func(p) { categoryToSlug(p.category) == slug }).toArray();
+    arr.sort(func(a : Product, b : Product) : Order.Order = Nat.compare(a.id, b.id))
   };
 };

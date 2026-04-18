@@ -7,6 +7,11 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface CategoryInfo {
+    nameBn: string;
+    nameEn: string;
+    slug: string;
+}
 export interface VisitorProfile {
     principal: string;
     name: string;
@@ -66,12 +71,17 @@ export interface UpdateProductInput {
     priceRangeMin: bigint;
 }
 export enum ProductCategory {
+    diwaliLakshmiGanesh = "diwaliLakshmiGanesh",
+    radhaKrishna = "radhaKrishna",
     lakshmi = "lakshmi",
+    vishwakarma = "vishwakarma",
     custom = "custom",
     saraswati = "saraswati",
-    hanuman = "hanuman",
+    kali = "kali",
     ganesh = "ganesh",
-    durga = "durga"
+    banglaLakshmiGanesh = "banglaLakshmiGanesh",
+    durga = "durga",
+    kartik = "kartik"
 }
 export interface backendInterface {
     addProduct(input: AddProductInput): Promise<{
@@ -90,6 +100,7 @@ export interface backendInterface {
     }>;
     getCategoryImage(slug: string): Promise<string | null>;
     getCategoryImages(): Promise<Array<CategoryImage>>;
+    getCategoryList(): Promise<Array<CategoryInfo>>;
     getInquiries(): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
@@ -107,6 +118,7 @@ export interface backendInterface {
     getOwnerPrincipal(): Promise<string>;
     getProduct(id: bigint): Promise<Product | null>;
     getProducts(): Promise<Array<Product>>;
+    getProductsByCategory(slug: string): Promise<Array<Product>>;
     getVisitors(): Promise<{
         __kind__: "ok";
         ok: Array<VisitorProfile>;

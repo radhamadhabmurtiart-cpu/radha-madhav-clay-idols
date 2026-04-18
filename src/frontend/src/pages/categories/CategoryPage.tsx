@@ -1,7 +1,7 @@
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useProducts } from "@/hooks/useProducts";
+import { useProductsByCategory } from "@/hooks/useProducts";
 import type { ProductCategory } from "@/types";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, Phone, ShieldCheck, Star, Truck } from "lucide-react";
@@ -19,6 +19,8 @@ export interface CategoryPageConfig {
   seoTitle: string;
   metaDescription: string;
   canonicalPath: string;
+  /** URL slug passed to getProductsByCategory(). Derived from canonicalPath by stripping leading "/". */
+  categorySlug?: string;
   h1En: string;
   h1Bn: string;
   /** Optional subtitle shown below H1 (e.g. "50+ unique designs") */
@@ -27,7 +29,7 @@ export interface CategoryPageConfig {
   descBn: string;
   altTexts: string[];
   faqs: CategoryFaqItem[];
-  /** backend categories to filter: "ganesh" | "lakshmi" | "durga" | "saraswati" | "hanuman" | "custom" */
+  /** @deprecated Use categorySlug instead. Kept for backwards compatibility. */
   backendCategories: string[];
 }
 
@@ -237,7 +239,9 @@ function backendProductToDisplay(p: {
 }
 
 export function CategoryPage({ config }: { config: CategoryPageConfig }) {
-  const { data: backendProducts, isLoading } = useProducts();
+  // Derive slug: prefer explicit categorySlug, fall back to canonicalPath without leading "/"
+  const slug = config.categorySlug ?? config.canonicalPath.replace(/^\//, "");
+  const { data: backendProducts, isLoading } = useProductsByCategory(slug);
 
   const baseUrl =
     typeof window !== "undefined"
@@ -297,12 +301,13 @@ export function CategoryPage({ config }: { config: CategoryPageConfig }) {
     };
   }, [config, canonicalUrl]);
 
-  // Filter products by backend categories
+  // Map backend products to display format (no filtering needed — already category-specific)
   const filteredProducts =
     backendProducts && backendProducts.length > 0
-      ? backendProducts
-          .filter((p) => config.backendCategories.includes(p.category))
-          .map((p, i) => ({ product: backendProductToDisplay(p), index: i }))
+      ? backendProducts.map((p, i) => ({
+          product: backendProductToDisplay(p),
+          index: i,
+        }))
       : [];
 
   const whatsappMsg = encodeURIComponent(

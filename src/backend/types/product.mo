@@ -1,10 +1,15 @@
 module {
   public type ProductCategory = {
     #ganesh;
+    #banglaLakshmiGanesh;
+    #vishwakarma;
     #lakshmi;
+    #diwaliLakshmiGanesh;
+    #kali;
     #durga;
+    #radhaKrishna;
+    #kartik;
     #saraswati;
-    #hanuman;
     #custom;
   };
 

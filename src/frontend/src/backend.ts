@@ -89,6 +89,11 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface CategoryInfo {
+    nameBn: string;
+    nameEn: string;
+    slug: string;
+}
 export interface VisitorProfile {
     principal: string;
     name: string;
@@ -148,12 +153,17 @@ export interface UpdateProductInput {
     priceRangeMin: bigint;
 }
 export enum ProductCategory {
+    diwaliLakshmiGanesh = "diwaliLakshmiGanesh",
+    radhaKrishna = "radhaKrishna",
     lakshmi = "lakshmi",
+    vishwakarma = "vishwakarma",
     custom = "custom",
     saraswati = "saraswati",
-    hanuman = "hanuman",
+    kali = "kali",
     ganesh = "ganesh",
-    durga = "durga"
+    banglaLakshmiGanesh = "banglaLakshmiGanesh",
+    durga = "durga",
+    kartik = "kartik"
 }
 export interface backendInterface {
     addProduct(input: AddProductInput): Promise<{
@@ -172,6 +182,7 @@ export interface backendInterface {
     }>;
     getCategoryImage(slug: string): Promise<string | null>;
     getCategoryImages(): Promise<Array<CategoryImage>>;
+    getCategoryList(): Promise<Array<CategoryInfo>>;
     getInquiries(): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
@@ -189,6 +200,7 @@ export interface backendInterface {
     getOwnerPrincipal(): Promise<string>;
     getProduct(id: bigint): Promise<Product | null>;
     getProducts(): Promise<Array<Product>>;
+    getProductsByCategory(slug: string): Promise<Array<Product>>;
     getVisitors(): Promise<{
         __kind__: "ok";
         ok: Array<VisitorProfile>;
@@ -291,6 +303,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getCategoryList(): Promise<Array<CategoryInfo>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCategoryList();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCategoryList();
+            return result;
+        }
+    }
     async getInquiries(): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
@@ -370,6 +396,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getProducts();
+            return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getProductsByCategory(arg0: string): Promise<Array<Product>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getProductsByCategory(arg0);
+                return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getProductsByCategory(arg0);
             return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
         }
     }
@@ -654,19 +694,29 @@ function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uin
     } : value;
 }
 function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    diwaliLakshmiGanesh: null;
+} | {
+    radhaKrishna: null;
+} | {
     lakshmi: null;
+} | {
+    vishwakarma: null;
 } | {
     custom: null;
 } | {
     saraswati: null;
 } | {
-    hanuman: null;
+    kali: null;
 } | {
     ganesh: null;
 } | {
+    banglaLakshmiGanesh: null;
+} | {
     durga: null;
+} | {
+    kartik: null;
 }): ProductCategory {
-    return "lakshmi" in value ? ProductCategory.lakshmi : "custom" in value ? ProductCategory.custom : "saraswati" in value ? ProductCategory.saraswati : "hanuman" in value ? ProductCategory.hanuman : "ganesh" in value ? ProductCategory.ganesh : "durga" in value ? ProductCategory.durga : value;
+    return "diwaliLakshmiGanesh" in value ? ProductCategory.diwaliLakshmiGanesh : "radhaKrishna" in value ? ProductCategory.radhaKrishna : "lakshmi" in value ? ProductCategory.lakshmi : "vishwakarma" in value ? ProductCategory.vishwakarma : "custom" in value ? ProductCategory.custom : "saraswati" in value ? ProductCategory.saraswati : "kali" in value ? ProductCategory.kali : "ganesh" in value ? ProductCategory.ganesh : "banglaLakshmiGanesh" in value ? ProductCategory.banglaLakshmiGanesh : "durga" in value ? ProductCategory.durga : "kartik" in value ? ProductCategory.kartik : value;
 }
 function from_candid_vec_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Product>): Array<Product> {
     return value.map((x)=>from_candid_Product_n6(_uploadFile, _downloadFile, x));
@@ -756,30 +806,50 @@ function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     };
 }
 function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ProductCategory): {
+    diwaliLakshmiGanesh: null;
+} | {
+    radhaKrishna: null;
+} | {
     lakshmi: null;
+} | {
+    vishwakarma: null;
 } | {
     custom: null;
 } | {
     saraswati: null;
 } | {
-    hanuman: null;
+    kali: null;
 } | {
     ganesh: null;
 } | {
+    banglaLakshmiGanesh: null;
+} | {
     durga: null;
+} | {
+    kartik: null;
 } {
-    return value == ProductCategory.lakshmi ? {
+    return value == ProductCategory.diwaliLakshmiGanesh ? {
+        diwaliLakshmiGanesh: null
+    } : value == ProductCategory.radhaKrishna ? {
+        radhaKrishna: null
+    } : value == ProductCategory.lakshmi ? {
         lakshmi: null
+    } : value == ProductCategory.vishwakarma ? {
+        vishwakarma: null
     } : value == ProductCategory.custom ? {
         custom: null
     } : value == ProductCategory.saraswati ? {
         saraswati: null
-    } : value == ProductCategory.hanuman ? {
-        hanuman: null
+    } : value == ProductCategory.kali ? {
+        kali: null
     } : value == ProductCategory.ganesh ? {
         ganesh: null
+    } : value == ProductCategory.banglaLakshmiGanesh ? {
+        banglaLakshmiGanesh: null
     } : value == ProductCategory.durga ? {
         durga: null
+    } : value == ProductCategory.kartik ? {
+        kartik: null
     } : value;
 }
 export interface CreateActorOptions {

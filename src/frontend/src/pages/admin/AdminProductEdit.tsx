@@ -1,4 +1,3 @@
-import { ProductCategory } from "@/backend.d";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useProduct, useUpdateProduct } from "@/hooks/useProducts";
 import {
   PRODUCT_CATEGORY_LABELS,
+  type ProductCategory,
   type ProductFormData,
   formDataToUpdateInput,
   productToFormData,
@@ -217,11 +217,13 @@ export function AdminProductEditPage() {
             className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             data-ocid="admin-edit-category"
           >
-            {Object.values(ProductCategory).map((cat) => (
-              <option key={cat} value={cat}>
-                {PRODUCT_CATEGORY_LABELS[cat]?.en ?? cat}
-              </option>
-            ))}
+            {(Object.keys(PRODUCT_CATEGORY_LABELS) as ProductCategory[]).map(
+              (cat) => (
+                <option key={cat} value={cat}>
+                  {PRODUCT_CATEGORY_LABELS[cat].en}
+                </option>
+              ),
+            )}
           </select>
         </div>
 

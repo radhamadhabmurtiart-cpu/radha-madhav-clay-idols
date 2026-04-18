@@ -5,6 +5,7 @@ import ProductMixin "mixins/product-api";
 import CategoryMixin "mixins/category-api";
 import ProductLib "lib/product";
 import CategoryLib "lib/category";
+import Migration "migration";
 import List "mo:core/List";
 import Map "mo:core/Map";
 import Time "mo:core/Time";
@@ -12,6 +13,7 @@ import Principal "mo:core/Principal";
 
 
 
+(with migration = Migration.run)
 actor {
   let ownerPrincipal : Principal = Principal.fromText("khuxn-trxys-ugzje-zumyw-k7nyc-igd7r-zqmyy-lnfy2-imbhm-nmn7r-wae");
 

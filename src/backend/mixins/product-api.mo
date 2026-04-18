@@ -44,4 +44,8 @@ mixin (
   public query func getProduct(id : Nat) : async ?Types.Product {
     ProductLib.getById(products, id)
   };
+
+  public query func getProductsByCategory(slug : Text) : async [Types.Product] {
+    ProductLib.getBySlug(products, slug)
+  };
 };

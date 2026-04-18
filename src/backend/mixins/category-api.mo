@@ -20,4 +20,8 @@ mixin (
     };
     CategoryLib.update(categoryImages, slug, imageUrl)
   };
+
+  public query func getCategoryList() : async [Types.CategoryInfo] {
+    CategoryLib.getAllCategoryInfo()
+  };
 };
