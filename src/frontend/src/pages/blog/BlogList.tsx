@@ -176,30 +176,13 @@ export function BlogListPage() {
               en: "Ready to Place a Wholesale Order?",
             })}
           </h2>
-          <p className="text-muted-foreground text-sm mb-6">
+          <p className="text-muted-foreground text-sm mb-3">
             {t({
               bn: "আজই যোগাযোগ করুন এবং বর্ধমান থেকে সারা ভারতে ডেলিভারির সুবিধা নিন।",
               en: "Contact us today and get reliable delivery from Bardhaman across India.",
             })}
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="tel:+916295466310"
-              className="btn-primary rounded-full text-sm inline-flex items-center justify-center gap-2"
-              data-ocid="blog-list-cta-call"
-            >
-              📞 {t({ bn: "কল করুন", en: "Call Now" })}
-            </a>
-            <a
-              href="https://wa.me/916295466310?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20bulk%20clay%20idol%20orders."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary rounded-full text-sm inline-flex items-center justify-center gap-2"
-              data-ocid="blog-list-cta-whatsapp"
-            >
-              💬 {t({ bn: "হোয়াটসঅ্যাপ", en: "WhatsApp Inquiry" })}
-            </a>
-          </div>
+          <p className="font-semibold text-primary text-base">+91 6295466310</p>
         </div>
       </section>
 

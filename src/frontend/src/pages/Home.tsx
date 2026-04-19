@@ -1,9 +1,10 @@
-import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
+import { SlidingBanner } from "@/components/SlidingBanner";
 import { TrustBadge } from "@/components/TrustBadge";
+import { useBannerImages } from "@/hooks/useBannerImages";
 import { useCategoryImages } from "@/hooks/useCategoryImages";
+import { useFeaturedProducts } from "@/hooks/useFeaturedProducts";
 import { useLanguage } from "@/hooks/useLanguage";
-import type { ProductCategory } from "@/types";
 import { Link } from "@tanstack/react-router";
 import {
   Award,
@@ -24,72 +25,14 @@ const PHONE = "+916295466310";
 const WHATSAPP_LINK =
   "https://wa.me/916295466310?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20bulk%20clay%20idol%20orders.";
 
-const FEATURED_PRODUCTS: ProductCategory[] = [
-  {
-    id: "ganesh",
-    name: { bn: "গণেশ মূর্তি", en: "Clay Ganesh Idol" },
-    description: {
-      bn: "পাইকারি মূল্যে হাতে তৈরি মাটির গণেশ মূর্তি। গণেশ পূজা ও সাজসজ্জার জন্য আদর্শ।",
-      en: "Handcrafted clay Ganesh idols at wholesale prices. Ideal for Ganesh Puja and decoration.",
-    },
-    image: "/assets/generated/product-ganesh.dim_400x300.jpg",
-    sizes: ['6"', '9"', '12"', '18"', '24"'],
-    priceRange: "₹150 – ₹2500",
-    bulkAvailable: true,
-    slug: "ganesh",
-  },
-  {
-    id: "lakshmi",
-    name: { bn: "লক্ষ্মী মূর্তি", en: "Clay Lakshmi Idol" },
-    description: {
-      bn: "ঐতিহ্যবাহী মাটির লক্ষ্মী মূর্তি, লক্ষ্মী পূজা ও দীপাবলির জন্য সেরা বিকল্প।",
-      en: "Traditional clay Lakshmi idols, the finest choice for Lakshmi Puja and Diwali.",
-    },
-    image: "/assets/generated/product-lakshmi.dim_400x300.jpg",
-    sizes: ['6"', '9"', '12"', '18"'],
-    priceRange: "₹200 – ₹2000",
-    bulkAvailable: true,
-    slug: "lakshmi",
-  },
-  {
-    id: "durga",
-    name: { bn: "দুর্গা মূর্তি", en: "Clay Durga Idol" },
-    description: {
-      bn: "দুর্গাপূজার জন্য বিশেষভাবে তৈরি মাটির দুর্গা প্রতিমা। পূজা কমিটিদের জন্য পাইকারি মূল্যে।",
-      en: "Specially crafted clay Durga idols for Durga Puja. Wholesale pricing for puja committees.",
-    },
-    image: "/assets/generated/product-durga.dim_400x300.jpg",
-    sizes: ["2ft", "3ft", "4ft", "5ft", "6ft+"],
-    priceRange: "₹1500 – ₹25000",
-    bulkAvailable: true,
-    slug: "durga",
-  },
-  {
-    id: "custom",
-    name: { bn: "কাস্টম মূর্তি", en: "Custom Clay Idols" },
-    description: {
-      bn: "আপনার পছন্দ অনুযায়ী কাস্টম মাটির মূর্তি তৈরি। যেকোনো ডিজাইন, যেকোনো মাপ।",
-      en: "Custom clay idols made to your specifications. Any design, any size, bulk orders welcome.",
-    },
-    image: "/assets/generated/hero-clay-idols.dim_1200x600.jpg",
-    sizes: ["Custom"],
-    bulkAvailable: true,
-    slug: "custom",
-  },
-];
-
 const PRODUCT_CATEGORIES = [
   {
     slug: "bangla-lakshmi-ganesh",
-    path: "/bangla-lakshmi-ganesh-idol-hal-khata",
+    path: "/bangla-lakshmi-ganesh-idol",
     emoji: "🌸",
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Lakshmi_and_Ganesh.jpg/640px-Lakshmi_and_Ganesh.jpg",
     name: { bn: "বাংলা লক্ষ্মী-গণেশ মূর্তি", en: "Bangla Lakshmi Ganesh Idol" },
-    desc: {
-      bn: "হাল খাতা ও পয়লা বৈশাখের জন্য বিশেষ মাটির লক্ষ্মী-গণেশ মূর্তি। পাইকারি মূল্যে উপলব্ধ।",
-      en: "Special Bangla Lakshmi Ganesh idols for Hal Khata & Poila Boishakh. Available at wholesale price.",
-    },
   },
   {
     slug: "clay-ganesh-idol-wholesale",
@@ -98,10 +41,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Clay_Ganesha.jpg/640px-Clay_Ganesha.jpg",
     name: { bn: "মাটির গণেশ মূর্তি পাইকারি", en: "Clay Ganesh Idol – Wholesale" },
-    desc: {
-      bn: "গণেশ পূজার জন্য হাতে তৈরি মাটির গণেশ মূর্তি। বাল্ক অর্ডার গৃহীত।",
-      en: "Handmade clay Ganesh idols for Ganesh Puja. Bulk orders available at wholesale price.",
-    },
   },
   {
     slug: "clay-vishwakarma-idol",
@@ -110,10 +49,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Vishwakarma.jpg/640px-Vishwakarma.jpg",
     name: { bn: "মাটির বিশ্বকর্মা মূর্তি", en: "Clay Vishwakarma Idol" },
-    desc: {
-      bn: "বিশ্বকর্মা পূজার জন্য মাটির মূর্তি পাইকারি মূল্যে। সারা ভারতে সরবরাহ।",
-      en: "Clay Vishwakarma idols for Vishwakarma Puja at wholesale price. All India supply.",
-    },
   },
   {
     slug: "clay-lakshmi-idol",
@@ -122,10 +57,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Lakshmi.jpg/640px-Lakshmi.jpg",
     name: { bn: "মাটির লক্ষ্মী মূর্তি", en: "Clay Lakshmi Idol" },
-    desc: {
-      bn: "ঐতিহ্যবাহী মাটির লক্ষ্মী মূর্তি, লক্ষ্মী পূজার জন্য সেরা বিকল্প।",
-      en: "Traditional clay Lakshmi idols, the finest choice for Lakshmi Puja wholesale.",
-    },
   },
   {
     slug: "diwali-lakshmi-ganesh-idol",
@@ -134,10 +65,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Diwali_Lakshmi-Ganesh.jpg/640px-Diwali_Lakshmi-Ganesh.jpg",
     name: { bn: "দীপাবলি লক্ষ্মী-গণেশ মূর্তি", en: "Diwali Lakshmi Ganesh Idol" },
-    desc: {
-      bn: "দীপাবলির জন্য বিশেষ লক্ষ্মী-গণেশ মাটির মূর্তি। পাইকারি মূল্যে উপলব্ধ।",
-      en: "Special Lakshmi Ganesh clay idols for Diwali. Available at wholesale price.",
-    },
   },
   {
     slug: "clay-kali-idol",
@@ -146,10 +73,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Goddess_kali_idol.jpg/640px-Goddess_kali_idol.jpg",
     name: { bn: "মাটির কালী মূর্তি", en: "Clay Kali Idol" },
-    desc: {
-      bn: "কালী পূজার জন্য হাতে তৈরি মাটির কালী মূর্তি। বাল্ক অর্ডার গৃহীত।",
-      en: "Handcrafted clay Kali idols for Kali Puja. Bulk orders accepted at wholesale rates.",
-    },
   },
   {
     slug: "small-durga-idol",
@@ -158,10 +81,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Durga_idol.jpg/640px-Durga_idol.jpg",
     name: { bn: "ছোট দুর্গা মূর্তি", en: "Small Durga Idol" },
-    desc: {
-      bn: "দুর্গাপূজার জন্য ছোট মাটির দুর্গা প্রতিমা পাইকারি মূল্যে।",
-      en: "Small clay Durga idols for Durga Puja at wholesale price. Supplied across India.",
-    },
   },
   {
     slug: "radha-krishna-clay-idol",
@@ -170,10 +89,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Radha_Krishna.jpg/640px-Radha_Krishna.jpg",
     name: { bn: "রাধা-কৃষ্ণ মাটির মূর্তি", en: "Radha Krishna Clay Idol" },
-    desc: {
-      bn: "রাধা-কৃষ্ণের মাটির মূর্তি পাইকারি মূল্যে। জন্মাষ্টমীর জন্য আদর্শ।",
-      en: "Clay Radha Krishna idols at wholesale price. Ideal for Janmashtami & home decor.",
-    },
   },
   {
     slug: "clay-kartik-idol",
@@ -182,10 +97,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Kartik_idol.jpg/640px-Kartik_idol.jpg",
     name: { bn: "মাটির কার্তিক মূর্তি", en: "Clay Kartik Idol" },
-    desc: {
-      bn: "কার্তিক পূজার জন্য মাটির কার্তিক মূর্তি। বাল্ক অর্ডার ও পাইকারি সরবরাহ।",
-      en: "Clay Kartik idols for Kartik Puja. Bulk and wholesale supply available.",
-    },
   },
   {
     slug: "clay-saraswati-idol",
@@ -194,10 +105,6 @@ const PRODUCT_CATEGORIES = [
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saraswati_clay_idol.jpg/640px-Saraswati_clay_idol.jpg",
     name: { bn: "মাটির সরস্বতী মূর্তি", en: "Clay Saraswati Idol" },
-    desc: {
-      bn: "সরস্বতী পূজার জন্য হাতে তৈরি মাটির মূর্তি পাইকারি মূল্যে।",
-      en: "Handmade clay Saraswati idols for Saraswati Puja at wholesale price.",
-    },
   },
   {
     slug: "custom-clay-idol",
@@ -205,12 +112,22 @@ const PRODUCT_CATEGORIES = [
     emoji: "✨",
     image: "",
     name: { bn: "কাস্টম মাটির মূর্তি", en: "Custom Clay Idol" },
-    desc: {
-      bn: "আপনার পছন্দ অনুযায়ী কাস্টম মাটির মূর্তি তৈরি। যেকোনো ডিজাইন, যেকোনো মাপ।",
-      en: "Custom clay idols made to your specifications. Any design, any size, bulk orders welcome.",
-    },
   },
 ];
+
+const CATEGORY_SLUG_MAP: Record<string, string> = {
+  banglaLakshmiGanesh: "bangla-lakshmi-ganesh",
+  ganesh: "clay-ganesh-idol-wholesale",
+  vishwakarma: "clay-vishwakarma-idol",
+  lakshmi: "clay-lakshmi-idol",
+  diwaliLakshmiGanesh: "diwali-lakshmi-ganesh-idol",
+  kali: "clay-kali-idol",
+  durga: "small-durga-idol",
+  radhaKrishna: "radha-krishna-clay-idol",
+  kartik: "clay-kartik-idol",
+  saraswati: "clay-saraswati-idol",
+  custom: "custom-clay-idol",
+};
 
 const WHY_CHOOSE_POINTS = [
   {
@@ -225,15 +142,15 @@ const WHY_CHOOSE_POINTS = [
     icon: <Package size={26} />,
     title: { bn: "পাইকারি মূল্য", en: "Wholesale Pricing" },
     desc: {
-      bn: "সরাসরি প্রস্তুতকারকের কাছ থেকে পাইকারি মূল্যে ক্রয় করুন। মধ্যস্থতাকারী নেই।",
-      en: "Buy directly from the manufacturer at wholesale prices. No middlemen, maximum value.",
+      bn: "সরাসরি প্রস্তুতকারকের কাছ থেকে পাইকারি মূল্যে ক্রয় করুন।",
+      en: "Buy directly from the manufacturer at wholesale prices. No middlemen.",
     },
   },
   {
     icon: <Users size={26} />,
     title: { bn: "বাল্ক অর্ডার সাপোর্ট", en: "Bulk Order Support" },
     desc: {
-      bn: "পূজা কমিটি, ডেকোরেটর এবং দোকানদারদের জন্য বিশেষ বাল্ক অর্ডার সুবিধা।",
+      bn: "পূজা কমিটি, ডেকোরেটর ও দোকানদারদের জন্য বিশেষ বাল্ক অর্ডার সুবিধা।",
       en: "Special bulk order facilities for puja committees, decorators and shop owners.",
     },
   },
@@ -241,7 +158,7 @@ const WHY_CHOOSE_POINTS = [
     icon: <Sparkles size={26} />,
     title: { bn: "কাস্টম ডিজাইন", en: "Custom Designs Available" },
     desc: {
-      bn: "আপনার চাহিদা অনুযায়ী যেকোনো ডিজাইনের মূর্তি তৈরি করা হয়। বিশেষ অর্ডার গ্রহণযোগ্য।",
+      bn: "আপনার চাহিদা অনুযায়ী যেকোনো ডিজাইনের মূর্তি তৈরি করা হয়।",
       en: "We create idols in any design per your requirements. Special orders accepted.",
     },
   },
@@ -268,9 +185,10 @@ const TRUST_BADGES = [
 
 export function HomePage() {
   const { t } = useLanguage();
+  const { data: bannerImages = [] } = useBannerImages();
   const { data: backendCategoryImages } = useCategoryImages();
+  const { data: featuredProducts = [] } = useFeaturedProducts();
 
-  // Merge backend images with hardcoded fallbacks
   const categoryImageMap: Record<string, string> = {};
   if (backendCategoryImages) {
     for (const ci of backendCategoryImages) {
@@ -297,12 +215,11 @@ export function HomePage() {
 
   return (
     <>
-      {/* ─── Hero Section ─── */}
+      {/* ─── Hero ─── */}
       <section
         className="relative min-h-[92vh] sm:min-h-[80vh] flex flex-col items-center justify-center overflow-hidden"
         aria-label="Hero"
       >
-        {/* Hero Background Image */}
         <div className="absolute inset-0 z-0">
           <img
             src="/assets/generated/hero-clay-idols.dim_1200x600.jpg"
@@ -310,13 +227,9 @@ export function HomePage() {
             className="w-full h-full object-cover"
             fetchPriority="high"
           />
-          {/* Dark clay-warm overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.18_0.08_40/0.72)] via-[oklch(0.22_0.08_40/0.60)] to-[oklch(0.15_0.06_35/0.80)]" />
         </div>
-
-        {/* Hero Content */}
         <div className="relative z-10 container max-w-4xl mx-auto px-4 py-20 text-center">
-          {/* Scarcity badge */}
           <div className="inline-flex items-center gap-2 bg-secondary/20 border border-secondary/40 text-secondary-foreground rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold mb-6 backdrop-blur-sm">
             <Clock size={13} className="text-secondary" />
             {t({
@@ -324,8 +237,6 @@ export function HomePage() {
               en: "Limited seasonal stock for Durga Puja season — Order now",
             })}
           </div>
-
-          {/* Bilingual Headline */}
           <h1 className="font-display font-bold text-[oklch(0.97_0.04_80)] leading-tight mb-2">
             <span className="block text-3xl sm:text-5xl lg:text-6xl">
               {t({
@@ -340,15 +251,12 @@ export function HomePage() {
               })}
             </span>
           </h1>
-
           <p className="text-[oklch(0.90_0.03_75)] text-base sm:text-lg lg:text-xl max-w-2xl mx-auto mt-4 mb-8 leading-relaxed">
             {t({
               bn: "গণেশ, লক্ষ্মী, দুর্গা ও কাস্টম মাটির মূর্তি পাইকারি মূল্যে। পূজা কমিটি, সাজসজ্জাকারী ও দোকানদারদের জন্য বিশেষ সুবিধা।",
               en: "Wholesale clay Ganesh, Lakshmi, Durga & custom idols. Special B2B pricing for puja committees, decorators and shop owners.",
             })}
           </p>
-
-          {/* Hero CTAs */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <a
               href={`tel:${PHONE}`}
@@ -369,8 +277,6 @@ export function HomePage() {
               {t({ bn: "হোয়াটসঅ্যাপ ইনকোয়ারি", en: "WhatsApp Inquiry" })}
             </a>
           </div>
-
-          {/* All India Delivery Trust Badge */}
           <div
             className="mt-5 flex justify-center"
             data-ocid="hero-delivery-badge"
@@ -383,8 +289,6 @@ export function HomePage() {
               })}
             </span>
           </div>
-
-          {/* Hero trust row */}
           <div className="mt-5 flex flex-wrap gap-3 justify-center">
             {TRUST_BADGES.map((b) => (
               <div
@@ -397,8 +301,6 @@ export function HomePage() {
             ))}
           </div>
         </div>
-
-        {/* Decorative wave */}
         <div className="absolute bottom-0 left-0 right-0 z-10">
           <svg
             viewBox="0 0 1440 60"
@@ -415,28 +317,108 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── Featured Products Section ─── */}
-      <section className="py-16 bg-muted/30" aria-labelledby="products-heading">
+      {/* ─── Sliding Banner ─── */}
+      <section
+        className="py-6 bg-[oklch(0.97_0.04_80)]"
+        aria-label="Featured banner"
+      >
+        <div className="container max-w-6xl mx-auto px-4">
+          <SlidingBanner images={bannerImages} />
+        </div>
+      </section>
+
+      {/* ─── Featured Products ─── */}
+      <section
+        className="py-14 bg-muted/30"
+        aria-labelledby="featured-products-heading"
+      >
         <div className="container max-w-6xl mx-auto px-4">
           <SectionHeading
-            title={{ bn: "আমাদের পণ্য সংগ্রহ", en: "Our Featured Collections" }}
+            title={{ bn: "বিশেষ পণ্য সংগ্রহ", en: "Featured Products" }}
             subtitle={{
-              bn: "পাইকারি মূল্যে হাতে তৈরি মাটির মূর্তির বিশাল সংগ্রহ। গণেশ, লক্ষ্মী, দুর্গা সহ আরো অনেক।",
-              en: "A wide collection of handmade clay idols at wholesale prices. Ganesh, Lakshmi, Durga and many more.",
+              bn: "পাইকারি মূল্যে হাতে তৈরি মাটির মূর্তির বিশেষ সংগ্রহ",
+              en: "Handpicked clay idol collections at wholesale prices",
             }}
-            className="mb-10"
+            className="mb-8"
           />
-
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
-            data-ocid="products-grid"
+            className="grid grid-cols-2 gap-4 sm:gap-6"
+            data-ocid="featured-products-grid"
           >
-            {FEATURED_PRODUCTS.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            {featuredProducts.length === 0
+              ? [1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-card rounded-xl border border-border overflow-hidden animate-pulse"
+                    data-ocid={`featured-product-skeleton.${i}`}
+                  >
+                    <div className="aspect-[4/3] bg-muted" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  </div>
+                ))
+              : featuredProducts.map((product, idx) => {
+                  const catSlug =
+                    CATEGORY_SLUG_MAP[product.category] ?? "custom-clay-idol";
+                  const catEntry = PRODUCT_CATEGORIES.find(
+                    (c) => c.slug === catSlug,
+                  );
+                  const imageSrc =
+                    product.imageIds[0] ||
+                    catEntry?.image ||
+                    "/assets/generated/hero-clay-idols.dim_1200x600.jpg";
+                  const priceLabel =
+                    product.priceRangeMin > 0n
+                      ? `₹${product.priceRangeMin.toString()} – ₹${product.priceRangeMax.toString()}`
+                      : null;
+                  return (
+                    <Link
+                      key={product.id.toString()}
+                      to="/products/$productId"
+                      params={{ productId: product.id.toString() }}
+                      className="group bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
+                      data-ocid={`featured-product.item.${idx + 1}`}
+                    >
+                      <div className="relative overflow-hidden aspect-[4/3] bg-muted">
+                        <img
+                          src={imageSrc}
+                          alt={`${product.nameEn} - clay idol wholesale`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "/assets/generated/hero-clay-idols.dim_1200x600.jpg";
+                          }}
+                        />
+                        {product.bulkAvailable && (
+                          <span className="absolute top-2 left-2 bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {t({ bn: "পাইকারি", en: "Wholesale" })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-3 sm:p-4 flex flex-col flex-1 gap-1">
+                        <p className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
+                          {product.nameBn}
+                        </p>
+                        <p className="text-xs text-muted-foreground leading-none">
+                          {product.nameEn}
+                        </p>
+                        {priceLabel && (
+                          <p className="text-xs font-semibold text-primary mt-1">
+                            {priceLabel}
+                          </p>
+                        )}
+                        <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all duration-200 pt-1">
+                          {t({ bn: "বিস্তারিত দেখুন", en: "View Details" })} →
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
           </div>
-
-          <div className="text-center mt-10">
+          <div className="text-center mt-8">
             <Link
               to="/products"
               className="inline-flex items-center gap-2 btn-primary rounded-full px-8 py-3.5"
@@ -448,9 +430,9 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── Product Categories Section ─── */}
+      {/* ─── Categories (3-col) ─── */}
       <section
-        className="py-16 bg-amber-50/60 border-y border-amber-200/50"
+        className="py-14 bg-amber-50/60 border-y border-amber-200/50"
         aria-labelledby="categories-heading"
       >
         <div className="container max-w-6xl mx-auto px-4">
@@ -460,10 +442,10 @@ export function HomePage() {
               bn: "পাইকারি অর্ডারের জন্য বিভাগ বেছে নিন",
               en: "Choose a category for wholesale orders",
             }}
-            className="mb-10"
+            className="mb-8"
           />
           <div
-            className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+            className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5"
             data-ocid="categories-grid"
           >
             {mergedCategories.map((cat) => (
@@ -473,7 +455,6 @@ export function HomePage() {
                 className="group bg-card border border-amber-200/60 rounded-xl overflow-hidden shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
                 data-ocid={`category-card-${cat.slug}`}
               >
-                {/* Category Image */}
                 <div className="relative overflow-hidden aspect-[4/3] bg-muted">
                   {cat.image ? (
                     <>
@@ -503,8 +484,7 @@ export function HomePage() {
                     </div>
                   )}
                 </div>
-                {/* Card Content */}
-                <div className="p-3 sm:p-4 flex flex-col flex-1 gap-1.5">
+                <div className="p-3 sm:p-4 flex flex-col flex-1 gap-1">
                   <p className="font-semibold text-foreground text-xs sm:text-sm leading-tight line-clamp-2">
                     {cat.name.bn}
                   </p>
@@ -521,9 +501,9 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── Why Choose Us Section ─── */}
+      {/* ─── Why Choose Us ─── */}
       <section
-        className="py-16 bg-background"
+        className="py-14 bg-background"
         aria-labelledby="why-choose-heading"
       >
         <div className="container max-w-6xl mx-auto px-4">
@@ -535,7 +515,6 @@ export function HomePage() {
             }}
             className="mb-10"
           />
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {WHY_CHOOSE_POINTS.map((point) => (
               <TrustBadge
@@ -549,7 +528,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── Customer Trust Section ─── */}
+      {/* ─── Testimonials ─── */}
       <section
         className="py-14 bg-primary/5 border-y border-border"
         aria-labelledby="trust-heading"
@@ -566,7 +545,6 @@ export function HomePage() {
               })}
             </h2>
           </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
             {TRUST_BADGES.map((badge) => (
               <TrustBadge
@@ -577,8 +555,6 @@ export function HomePage() {
               />
             ))}
           </div>
-
-          {/* Testimonials */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
@@ -599,8 +575,8 @@ export function HomePage() {
                   en: "Idol Wholesale Dealer, Kolkata",
                 },
                 text: {
-                  bn: "সেরা পাইকারি মূল্যে উচ্চমানের মাটির মূর্তি পাওয়া যায়। আমার সব কাস্টমাররা মুগ্ধ।",
-                  en: "Best wholesale pricing on high-quality clay idols. All my customers are impressed with the quality.",
+                  bn: "সেরা পাইকারি মূল্যে উচ্চমানের মাটির মূর্তি পাওয়া যায়।",
+                  en: "Best wholesale pricing on high-quality clay idols. All my customers are impressed.",
                 },
               },
               {
@@ -642,9 +618,9 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── SEO Content Block ─── */}
+      {/* ─── SEO Content ─── */}
       <section
-        className="py-12 bg-muted/20"
+        className="py-10 bg-muted/20"
         aria-labelledby="seo-content-heading"
       >
         <div className="container max-w-4xl mx-auto px-4 text-center">
@@ -659,19 +635,18 @@ export function HomePage() {
           </h2>
           <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mx-auto">
             {t({
-              bn: "রাধা মাধব মৃৎ শিল্পালয় — বর্ধমানের সেরা মাটির মূর্তি প্রস্তুতকারক। গণেশ মূর্তি পাইকারি, লক্ষ্মী মূর্তি সরবরাহ, দুর্গা প্রতিমা পাইকারি — সমস্ত উৎসবের জন্য মাটির মূর্তি সরাসরি প্রস্তুতকারকের কাছ থেকে। মাটির মূর্তি প্রস্তুতকারক কাছে খুঁজুন — Bardhaman, West Bengal।",
-              en: "Radha Madhav Mrit Shilpalay — the premier clay idol manufacturer in Bardhaman. Ganesh idol wholesale, Lakshmi idol supplier, Durga idol wholesale — handmade clay idols for all festivals directly from the manufacturer. Clay idol maker near me — Bardhaman, West Bengal. Serving retail shops, puja committees, decorators and wholesale buyers across West Bengal and India.",
+              bn: "রাধা মাধব মৃৎ শিল্পালয় — বর্ধমানের সেরা মাটির মূর্তি প্রস্তুতকারক। গণেশ মূর্তি পাইকারি, লক্ষ্মী মূর্তি সরবরাহ, দুর্গা প্রতিমা পাইকারি — সমস্ত উৎসবের জন্য মাটির মূর্তি সরাসরি প্রস্তুতকারকের কাছ থেকে।",
+              en: "Radha Madhav Mrit Shilpalay — the premier clay idol manufacturer in Bardhaman. Ganesh idol wholesale, Lakshmi idol supplier, Durga idol wholesale — handmade clay idols for all festivals directly from the manufacturer. Serving retail shops, puja committees, decorators and wholesale buyers across West Bengal and India.",
             })}
           </p>
         </div>
       </section>
 
-      {/* ─── Contact CTA Section ─── */}
+      {/* ─── Contact CTA ─── */}
       <section
         className="py-16 bg-primary relative overflow-hidden"
         aria-labelledby="contact-cta-heading"
       >
-        {/* Decorative circle */}
         <div
           className="absolute -top-24 -right-24 w-64 h-64 rounded-full opacity-10 bg-primary-foreground"
           aria-hidden="true"
@@ -680,7 +655,6 @@ export function HomePage() {
           className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full opacity-10 bg-primary-foreground"
           aria-hidden="true"
         />
-
         <div className="relative container max-w-4xl mx-auto px-4 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/70 mb-3">
             {t({ bn: "যোগাযোগ করুন", en: "Get In Touch" })}
@@ -700,7 +674,6 @@ export function HomePage() {
               en: "Book now for Durga Puja, Diwali and other festivals. Limited seasonal stock available.",
             })}
           </p>
-
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
             <a
               href={`tel:${PHONE}`}
@@ -721,7 +694,6 @@ export function HomePage() {
               {t({ bn: "হোয়াটসঅ্যাপ ইনকোয়ারি", en: "WhatsApp Inquiry" })}
             </a>
           </div>
-
           <div className="flex items-center justify-center gap-2 text-primary-foreground/70 text-sm">
             <MapPin size={15} />
             <span>
@@ -731,7 +703,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ─── About Business Section ─── */}
+      {/* ─── About Business (bottom) ─── */}
       <section className="py-16 bg-background" aria-labelledby="about-heading">
         <div className="container max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -753,7 +725,6 @@ export function HomePage() {
                   en: "Our skilled artisans imprint traditional craftsmanship in every idol. Carrying forward the rich pottery heritage of Bardhaman, we supply idols at wholesale prices across West Bengal and all of India.",
                 })}
               </p>
-
               <div className="grid grid-cols-2 gap-4 mb-6">
                 {[
                   {
@@ -786,7 +757,6 @@ export function HomePage() {
                   </div>
                 ))}
               </div>
-
               <div className="flex items-start gap-2 text-sm text-muted-foreground">
                 <MapPin
                   size={15}
@@ -798,7 +768,6 @@ export function HomePage() {
                 </span>
               </div>
             </div>
-
             <div className="relative">
               <div className="rounded-2xl overflow-hidden shadow-lg border border-border aspect-[4/3]">
                 <img
@@ -808,7 +777,6 @@ export function HomePage() {
                   loading="lazy"
                 />
               </div>
-              {/* Floating badge */}
               <div className="absolute -bottom-4 -left-4 bg-card border border-border rounded-xl shadow-lg px-4 py-3 flex items-center gap-2">
                 <span className="text-2xl">🏺</span>
                 <div>

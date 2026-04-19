@@ -1,26 +1,28 @@
 {
-  "overview": "Professional bilingual (Bengali/English) clay idol manufacturing and wholesale website for Radha Madhav Mrit Shilpalay. Features 11 SEO-optimized product categories, 50+ product listings, 8 city landing pages, inquiry-based ordering, and owner admin panel.",
+  "overview": "A bilingual (Bengali/English) business website for Radha Madhav Mrit Shilpalay, a clay idol manufacturing and wholesale business in Bardhaman, West Bengal. Features a product-first homepage with sliding banner, featured products, admin panel with phone+password login, and full product/category management.",
   "features": [
-    "11 SEO-optimized product categories",
-    "50+ unique Ganesh idol product listings with images",
-    "8 city landing pages (Bardhaman, Durgapur, Asansol, Bankura, Purulia, Dhanbad, Kolkata, All India)",
-    "Mobile-first 2-column product grid",
-    "Category cards with images, shadows, rounded corners",
-    "Internet Identity customer login",
-    "Owner-only admin panel",
+    "Phone+password admin login (no Internet Identity required)",
+    "Sliding banner with admin-replaceable images",
+    "Featured products section in 2-column grid",
+    "11 product categories in 3-column grid",
+    "Unified category management in admin panel",
+    "Simplified product add/edit form",
+    "Visitor login via Internet Identity",
+    "Product display on both Caffeine and Netlify",
+    "Sticky footer Call/WhatsApp buttons",
     "Bilingual Bengali/English content",
-    "WhatsApp & Call CTAs",
-    "Inquiry-based ordering system"
+    "SEO optimized with schema markup"
   ],
   "category": "business",
   "tags": [
     "clay-idol",
     "wholesale",
-    "e-commerce",
     "bengali",
-    "mobile-first",
-    "seo",
-    "admin-panel"
+    "business",
+    "admin-panel",
+    "product-catalog",
+    "bardhaman",
+    "west-bengal"
   ],
-  "last_updated": "2026-04-13T20:12:23.539Z"
+  "last_updated": "2026-04-19T08:58:38.325Z"
 }

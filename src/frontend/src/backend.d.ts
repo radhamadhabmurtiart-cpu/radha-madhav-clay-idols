@@ -18,6 +18,12 @@ export interface VisitorProfile {
     phone: string;
     registeredAt: bigint;
 }
+export interface BannerImage {
+    id: string;
+    title: string;
+    displayOrder: bigint;
+    imageUrl: string;
+}
 export interface AddProductInput {
     nameBn: string;
     nameEn: string;
@@ -91,6 +97,14 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    adminLogin(phone: string, password: string): Promise<{
+        __kind__: "ok";
+        ok: string;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
+    adminLogout(token: string): Promise<void>;
     deleteProduct(id: bigint): Promise<{
         __kind__: "ok";
         ok: null;
@@ -98,9 +112,11 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    getBannerImages(): Promise<Array<BannerImage>>;
     getCategoryImage(slug: string): Promise<string | null>;
     getCategoryImages(): Promise<Array<CategoryImage>>;
     getCategoryList(): Promise<Array<CategoryInfo>>;
+    getFeaturedProductIds(): Promise<Array<bigint>>;
     getInquiries(): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
@@ -141,7 +157,21 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    updateBannerImages(images: Array<BannerImage>, sessionToken: string | null): Promise<{
+        __kind__: "ok";
+        ok: null;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     updateCategoryImage(slug: string, imageUrl: string): Promise<boolean>;
+    updateFeaturedProductIds(ids: Array<bigint>, sessionToken: string | null): Promise<{
+        __kind__: "ok";
+        ok: null;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     updateProduct(input: UpdateProductInput): Promise<{
         __kind__: "ok";
         ok: Product;
@@ -149,4 +179,5 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
+    validateAdminSession(token: string): Promise<boolean>;
 }

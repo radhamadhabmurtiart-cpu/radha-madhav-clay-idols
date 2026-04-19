@@ -1,4 +1,6 @@
 // Version: 1.0.0
+type BannerImage__675122131 =
+  {displayOrder : Nat; id : Text; imageUrl : Text; title : Text};
 type Data__791452850<K, V> =
   {var count : Nat__490723111; kvs : [var ?(K, V)]};
 type InquiryRecord__990396962 =
@@ -52,8 +54,12 @@ type VisitorProfile__86261975 =
 actor {
   stable var _nextInquiryId : Nat;
   stable var _nextProductId : Nat;
+  stable adminSessions :
+    {var root : Node__46230540<Text, Int>; var size : Nat__490723111};
+  stable bannerImages : {var value : [BannerImage__675122131]};
   stable categoryImages :
     {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  stable featuredProductIds : {var value : [Nat]};
   stable inquiries :
     {
       var blockIndex : Nat__490723111;

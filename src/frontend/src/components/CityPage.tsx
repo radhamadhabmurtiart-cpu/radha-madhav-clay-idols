@@ -3,12 +3,8 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { useLanguage } from "@/hooks/useLanguage";
 import type { CityPageProps } from "@/types";
 import { Link } from "@tanstack/react-router";
-import { MapPin, MessageCircle, Package, Phone, Truck } from "lucide-react";
+import { MapPin, Package, Truck } from "lucide-react";
 import { useEffect } from "react";
-
-const PHONE = "+916295466310";
-const WHATSAPP_LINK =
-  "https://wa.me/916295466310?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20bulk%20clay%20idol%20orders.";
 
 const CITY_PRODUCT_CATEGORIES = [
   {
@@ -251,27 +247,6 @@ export function CityPage({
           <p className="text-[oklch(0.90_0.03_75)] text-sm sm:text-base max-w-2xl mt-4 mb-8 leading-relaxed">
             {t(logisticsDescription)}
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <a
-              href={`tel:${PHONE}`}
-              className="inline-flex items-center justify-center gap-2.5 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95 transition-smooth px-7 py-3.5 rounded-full text-base font-bold shadow-lg"
-              data-ocid="city-hero-call-btn"
-            >
-              <Phone size={17} />
-              {t({ bn: "এখনই কল করুন", en: "Call Now for Bulk Order" })}
-            </a>
-            <a
-              href={WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2.5 bg-secondary text-secondary-foreground hover:bg-secondary/90 active:scale-95 transition-smooth px-7 py-3.5 rounded-full text-base font-bold shadow-lg"
-              data-ocid="city-hero-whatsapp-btn"
-            >
-              <MessageCircle size={17} />
-              {t({ bn: "হোয়াটসঅ্যাপ ইনকোয়ারি", en: "WhatsApp Inquiry" })}
-            </a>
-          </div>
         </div>
 
         {/* Wave divider */}

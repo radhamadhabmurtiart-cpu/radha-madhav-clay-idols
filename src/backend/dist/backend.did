@@ -69,6 +69,13 @@ type CategoryImage =
    imageUrl: text;
    slug: text;
  };
+type BannerImage = 
+ record {
+   displayOrder: nat;
+   id: text;
+   imageUrl: text;
+   title: text;
+ };
 type AddProductInput = 
  record {
    bulkAvailable: bool;
@@ -87,13 +94,21 @@ service : {
                                              err: text;
                                              ok: Product;
                                            });
+  adminLogin: (phone: text, password: text) ->
+   (variant {
+      err: text;
+      ok: text;
+    });
+  adminLogout: (token: text) -> ();
   deleteProduct: (id: nat) -> (variant {
                                  err: text;
                                  ok;
                                });
+  getBannerImages: () -> (vec BannerImage) query;
   getCategoryImage: (slug: text) -> (opt text) query;
   getCategoryImages: () -> (vec CategoryImage) query;
   getCategoryList: () -> (vec CategoryInfo) query;
+  getFeaturedProductIds: () -> (vec nat) query;
   getInquiries: () -> (variant {
                          err: text;
                          ok: vec InquiryRecord;
@@ -121,10 +136,21 @@ service : {
                err: text;
                ok: text;
              });
+  updateBannerImages: (images: vec BannerImage, sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok;
+    });
   updateCategoryImage: (slug: text, imageUrl: text) -> (bool);
+  updateFeaturedProductIds: (ids: vec nat, sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok;
+    });
   updateProduct: (input: UpdateProductInput) ->
    (variant {
       err: text;
       ok: Product;
     });
+  validateAdminSession: (token: text) -> (bool) query;
 }

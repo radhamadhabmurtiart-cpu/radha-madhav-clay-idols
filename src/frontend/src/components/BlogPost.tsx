@@ -2,19 +2,8 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { useLanguage } from "@/hooks/useLanguage";
 import type { BlogPostProps } from "@/types";
 import { Link } from "@tanstack/react-router";
-import {
-  BookOpen,
-  Calendar,
-  Clock,
-  MessageCircle,
-  Phone,
-  Tag,
-} from "lucide-react";
+import { BookOpen, Calendar, Clock, Tag } from "lucide-react";
 import { useEffect } from "react";
-
-const PHONE = "+916295466310";
-const WHATSAPP_LINK =
-  "https://wa.me/916295466310?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20bulk%20clay%20idol%20orders.";
 
 /**
  * Shared BlogPost layout component. Each blog page passes its full data.
@@ -199,32 +188,15 @@ export function BlogPost({
                 en: "Contact Us for Bulk Orders",
               })}
             </h3>
-            <p className="text-sm text-muted-foreground mb-5">
+            <p className="text-sm text-muted-foreground mb-2">
               {t({
                 bn: "রাধা মাধব মৃৎ শিল্পালয় — বর্ধমান থেকে সারা ভারতে সরবরাহ।",
                 en: "Radha Madhav Mrit Shilpalay — supplying clay idols from Bardhaman across India.",
               })}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a
-                href={`tel:${PHONE}`}
-                className="inline-flex items-center justify-center gap-2 btn-primary rounded-full px-6 py-3 text-sm font-bold"
-                data-ocid="blog-cta-call-btn"
-              >
-                <Phone size={15} />
-                {t({ bn: "কল করুন", en: "Call Now" })}
-              </a>
-              <a
-                href={WHATSAPP_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 btn-secondary rounded-full px-6 py-3 text-sm font-bold"
-                data-ocid="blog-cta-whatsapp-btn"
-              >
-                <MessageCircle size={15} />
-                {t({ bn: "হোয়াটসঅ্যাপ", en: "WhatsApp Inquiry" })}
-              </a>
-            </div>
+            <p className="font-semibold text-primary text-base">
+              +91 6295466310
+            </p>
           </div>
         </div>
       </article>

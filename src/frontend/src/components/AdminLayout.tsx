@@ -18,19 +18,15 @@ const NAV_ITEMS = [
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { logout, identity } = useAdmin();
+  const { logout } = useAdmin();
   const location = useLocation();
   const router = useRouter();
   const currentPath = location.pathname;
 
   function handleLogout() {
-    logout();
+    void logout();
     router.navigate({ to: "/admin/login" });
   }
-
-  const principalDisplay = identity
-    ? `${identity.getPrincipal().toText().slice(0, 10)}...`
-    : "";
 
   return (
     <div className="min-h-screen flex bg-muted/30">
@@ -78,11 +74,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* User / Logout */}
         <div className="px-3 py-4 border-t border-border space-y-2">
-          {principalDisplay && (
-            <p className="text-xs text-muted-foreground font-mono truncate px-1">
-              {`${principalDisplay}`}
-            </p>
-          )}
           <button
             type="button"
             onClick={handleLogout}
@@ -118,11 +109,6 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            {principalDisplay && (
-              <span className="hidden sm:block text-xs font-mono text-muted-foreground">
-                {principalDisplay}
-              </span>
-            )}
             <button
               type="button"
               onClick={handleLogout}

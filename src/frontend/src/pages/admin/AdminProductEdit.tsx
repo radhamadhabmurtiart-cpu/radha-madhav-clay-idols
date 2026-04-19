@@ -2,26 +2,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useProduct, useUpdateProduct } from "@/hooks/useProducts";
 import {
   PRODUCT_CATEGORY_LABELS,
   type ProductCategory,
-  type ProductFormData,
-  formDataToUpdateInput,
-  productToFormData,
+  type UpdateProductInput,
 } from "@/types/admin";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { ArrowLeft, ImagePlus, Loader2, Save, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface ImagePreview {
-  id: string;
-  dataUrl: string;
-  name: string;
-  isExisting?: boolean;
+interface SimpleForm {
+  nameEn: string;
+  category: ProductCategory;
+  imageUrl: string;
+  price: string;
+  description: string;
 }
 
 export function AdminProductEditPage() {
@@ -31,101 +29,58 @@ export function AdminProductEditPage() {
   const updateProduct = useUpdateProduct();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<ProductFormData | null>(null);
-  const [images, setImages] = useState<ImagePreview[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [form, setForm] = useState<SimpleForm | null>(null);
 
   useEffect(() => {
     if (product && !form) {
-      setForm(productToFormData(product));
-      setImages(
-        product.imageIds.map((imageId, idx) => ({
-          id: `existing-${idx}-${imageId.slice(0, 16)}`,
-          dataUrl: imageId,
-          name: "existing",
-          isExisting: true,
-        })),
-      );
+      setForm({
+        nameEn: product.nameEn,
+        category: product.category,
+        imageUrl: product.imageIds[0] ?? "",
+        price:
+          product.priceRangeMin > 0n ? product.priceRangeMin.toString() : "",
+        description: product.descriptionEn,
+      });
     }
   }, [product, form]);
 
-  function update(
-    field: keyof ProductFormData,
-    value: string | boolean | string[],
-  ) {
+  function update<K extends keyof SimpleForm>(field: K, value: SimpleForm[K]) {
     setForm((prev) => (prev ? { ...prev, [field]: value } : prev));
   }
 
-  function syncImageIds(updatedImages: ImagePreview[]) {
-    setForm((f) =>
-      f ? { ...f, imageIds: updatedImages.map((img) => img.dataUrl) } : f,
-    );
-  }
-
-  async function readFilesAsDataUrls(files: FileList | File[]): Promise<void> {
-    const fileArray = Array.from(files).filter((f) =>
-      f.type.startsWith("image/"),
-    );
-    if (fileArray.length === 0) return;
-
-    const results = await Promise.all(
-      fileArray.map(
-        (file) =>
-          new Promise<ImagePreview>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) =>
-              resolve({
-                id: `new-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-                dataUrl: e.target?.result as string,
-                name: file.name,
-                isExisting: false,
-              });
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          }),
-      ),
-    );
-
-    setImages((prev) => {
-      const combined = [...prev, ...results];
-      syncImageIds(combined);
-      return combined;
-    });
-  }
-
-  function removeImage(index: number) {
-    setImages((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      syncImageIds(next);
-      return next;
-    });
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files.length > 0) {
-      readFilesAsDataUrls(e.dataTransfer.files);
-    }
+  function buildInput(): UpdateProductInput {
+    if (!form) throw new Error("Form not ready");
+    const price = Number.parseInt(form.price, 10);
+    const priceBig = BigInt(Number.isNaN(price) || price < 0 ? 0 : price);
+    return {
+      id: productId,
+      nameEn: form.nameEn.trim(),
+      nameBn: form.nameEn.trim(),
+      descriptionEn: form.description.trim(),
+      descriptionBn: form.description.trim(),
+      category: form.category,
+      sizes: product?.sizes ?? [],
+      priceRangeMin: priceBig,
+      priceRangeMax: priceBig,
+      bulkAvailable: product?.bulkAvailable ?? true,
+      imageIds: form.imageUrl.trim() ? [form.imageUrl.trim()] : [],
+    };
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form) return;
-    if (!form.nameBn.trim() || !form.nameEn.trim()) {
-      toast.error("Both Bengali and English names are required.");
+    if (!form.nameEn.trim()) {
+      toast.error("Product name is required.");
+      return;
+    }
+    if (!form.imageUrl.trim()) {
+      toast.error("Image URL is required.");
       return;
     }
     try {
-      // Read images directly from current state snapshot to avoid async race
-      // condition where form.imageIds may lag behind the images state update.
-      const currentImageIds = images.map((img) => img.dataUrl);
-      await updateProduct.mutateAsync(
-        formDataToUpdateInput(productId, form, currentImageIds),
-      );
+      await updateProduct.mutateAsync(buildInput());
       toast.success("Product updated successfully!");
-      // navigate(-1) for reliable back navigation; fall back to /admin
       navigate({ to: "/admin" });
     } catch (err) {
       console.error("Product update failed:", err);
@@ -137,16 +92,16 @@ export function AdminProductEditPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl space-y-4">
+      <div className="max-w-lg space-y-4">
         <Skeleton className="h-8 w-48 rounded" />
-        <Skeleton className="h-96 w-full rounded-xl" />
+        <Skeleton className="h-80 w-full rounded-xl" />
       </div>
     );
   }
 
   if (!product || !form) {
     return (
-      <div className="max-w-2xl py-12 text-center">
+      <div className="max-w-lg py-12 text-center">
         <p className="font-semibold text-foreground">Product not found.</p>
         <Button
           variant="outline"
@@ -160,7 +115,7 @@ export function AdminProductEditPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-lg space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
@@ -175,7 +130,7 @@ export function AdminProductEditPage() {
           <h1 className="font-display font-bold text-2xl text-foreground">
             Edit Product
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5 truncate max-w-xs">
             {product.nameEn}
           </p>
         </div>
@@ -185,28 +140,16 @@ export function AdminProductEditPage() {
         onSubmit={handleSubmit}
         className="bg-card border border-border rounded-xl p-6 space-y-5"
       >
-        {/* Names */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="nameEn">Name (English) *</Label>
-            <Input
-              id="nameEn"
-              value={form.nameEn}
-              onChange={(e) => update("nameEn", e.target.value)}
-              required
-              data-ocid="admin-edit-name-en"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="nameBn">Name (Bengali) *</Label>
-            <Input
-              id="nameBn"
-              value={form.nameBn}
-              onChange={(e) => update("nameBn", e.target.value)}
-              required
-              data-ocid="admin-edit-name-bn"
-            />
-          </div>
+        {/* Name */}
+        <div className="space-y-1.5">
+          <Label htmlFor="nameEn">Product Name *</Label>
+          <Input
+            id="nameEn"
+            value={form.nameEn}
+            onChange={(e) => update("nameEn", e.target.value)}
+            required
+            data-ocid="admin-edit-name"
+          />
         </div>
 
         {/* Category */}
@@ -231,175 +174,59 @@ export function AdminProductEditPage() {
           </select>
         </div>
 
-        {/* Descriptions */}
+        {/* Image URL */}
         <div className="space-y-1.5">
-          <Label htmlFor="descriptionEn">Description (English)</Label>
-          <Textarea
-            id="descriptionEn"
-            value={form.descriptionEn}
-            onChange={(e) => update("descriptionEn", e.target.value)}
-            rows={3}
-            data-ocid="admin-edit-desc-en"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="descriptionBn">Description (Bengali)</Label>
-          <Textarea
-            id="descriptionBn"
-            value={form.descriptionBn}
-            onChange={(e) => update("descriptionBn", e.target.value)}
-            rows={3}
-            data-ocid="admin-edit-desc-bn"
-          />
-        </div>
-
-        {/* Sizes */}
-        <div className="space-y-1.5">
-          <Label htmlFor="sizes">Available Sizes</Label>
+          <Label htmlFor="imageUrl">Image URL *</Label>
           <Input
-            id="sizes"
-            value={form.sizes}
-            onChange={(e) => update("sizes", e.target.value)}
-            placeholder="e.g. 1ft, 2ft, 3ft, 4ft"
-            data-ocid="admin-edit-sizes"
+            id="imageUrl"
+            type="url"
+            value={form.imageUrl}
+            onChange={(e) => update("imageUrl", e.target.value)}
+            placeholder="https://example.com/idol-image.jpg"
+            required
+            data-ocid="admin-edit-image-url"
           />
-          <p className="text-xs text-muted-foreground">
-            Separate sizes with commas
-          </p>
-        </div>
-
-        {/* Price Range */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="priceMin">Min Price (₹)</Label>
-            <Input
-              id="priceMin"
-              type="number"
-              min="0"
-              value={form.priceRangeMin}
-              onChange={(e) => update("priceRangeMin", e.target.value)}
-              data-ocid="admin-edit-price-min"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="priceMax">Max Price (₹)</Label>
-            <Input
-              id="priceMax"
-              type="number"
-              min="0"
-              value={form.priceRangeMax}
-              onChange={(e) => update("priceRangeMax", e.target.value)}
-              data-ocid="admin-edit-price-max"
-            />
-          </div>
-        </div>
-
-        {/* Bulk Available */}
-        <div className="flex items-center justify-between rounded-lg border border-border p-4">
-          <div>
-            <p className="font-medium text-sm text-foreground">
-              Bulk Orders Available
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Show "Bulk Order Available" badge on this product
-            </p>
-          </div>
-          <Switch
-            checked={form.bulkAvailable}
-            onCheckedChange={(val) => update("bulkAvailable", val)}
-            data-ocid="admin-edit-bulk-toggle"
-          />
-        </div>
-
-        {/* Image Gallery */}
-        <div className="space-y-3">
-          <Label>Product Images</Label>
-
-          {/* Existing + new images grid */}
-          {images.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {images.map((img, i) => (
-                <div
-                  key={img.id}
-                  className="relative group aspect-square rounded-lg overflow-hidden border border-border bg-muted"
-                >
-                  <img
-                    src={img.dataUrl}
-                    alt={img.isExisting ? `Product image ${i + 1}` : img.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 w-6 h-6 bg-background/80 hover:bg-destructive hover:text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-smooth"
-                    aria-label={`Remove image ${i + 1}`}
-                    data-ocid={`admin-edit-remove-image-${img.id}`}
-                  >
-                    <X size={12} />
-                  </button>
-                  {i === 0 && (
-                    <span className="absolute bottom-1 left-1 text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-medium">
-                      Main
-                    </span>
-                  )}
-                  {img.isExisting && (
-                    <span className="absolute top-1 left-1 text-xs bg-secondary/90 text-secondary-foreground px-1 py-0.5 rounded font-medium">
-                      Saved
-                    </span>
-                  )}
-                </div>
-              ))}
+          {form.imageUrl.trim() && (
+            <div className="w-full h-36 rounded-lg overflow-hidden border border-border bg-muted mt-2">
+              <img
+                src={form.imageUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
             </div>
           )}
-
-          {/* Drop zone */}
-          <button
-            type="button"
-            aria-label="Add more product images"
-            className={`w-full border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-smooth ${
-              isDragging
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-primary/50 hover:bg-muted/30"
-            }`}
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-            data-ocid="admin-edit-image-dropzone"
-          >
-            <ImagePlus
-              size={22}
-              className="mx-auto mb-1.5 text-muted-foreground/60"
-            />
-            <p className="text-sm font-medium text-foreground">
-              {images.length > 0
-                ? "Add more images"
-                : "Click or drag images here"}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              JPG, PNG, WEBP — multiple images supported
-            </p>
-          </button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(e) =>
-              e.target.files && readFilesAsDataUrls(e.target.files)
-            }
-            data-ocid="admin-edit-image-input"
-          />
-
           <p className="text-xs text-muted-foreground">
-            {images.length} image{images.length !== 1 ? "s" : ""} total. First
-            image is the main product photo.
+            Paste a direct image link. The preview updates automatically.
           </p>
+        </div>
+
+        {/* Price */}
+        <div className="space-y-1.5">
+          <Label htmlFor="price">Price (₹) — optional</Label>
+          <Input
+            id="price"
+            type="number"
+            min="0"
+            value={form.price}
+            onChange={(e) => update("price", e.target.value)}
+            placeholder="e.g. 500"
+            data-ocid="admin-edit-price"
+          />
+        </div>
+
+        {/* Description */}
+        <div className="space-y-1.5">
+          <Label htmlFor="description">Description — optional</Label>
+          <Textarea
+            id="description"
+            value={form.description}
+            onChange={(e) => update("description", e.target.value)}
+            rows={3}
+            data-ocid="admin-edit-description"
+          />
         </div>
 
         {/* Submit */}
@@ -415,12 +242,13 @@ export function AdminProductEditPage() {
             ) : (
               <Save size={14} />
             )}
-            {updateProduct.isPending ? "Saving…" : "Save Changes"}
+            {updateProduct.isPending ? "Saving…" : "Save Details"}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => navigate({ to: "/admin" })}
+            data-ocid="admin-edit-cancel"
           >
             Cancel
           </Button>

@@ -4,10 +4,9 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useProductsByCategory } from "@/hooks/useProducts";
 import type { ProductCategory } from "@/types";
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, Phone, ShieldCheck, Star, Truck } from "lucide-react";
+import { ShieldCheck, Star, Truck } from "lucide-react";
 import { useEffect } from "react";
 
-const WHATSAPP_BASE = "https://wa.me/916295466310?text=";
 const PHONE = "+916295466310";
 
 export interface CategoryFaqItem {
@@ -54,9 +53,6 @@ function BackendProductCard({
     .map((w) => w[0])
     .join("");
   const colorClass = PLACEHOLDER_COLORS[index % PLACEHOLDER_COLORS.length];
-  const waMsg = encodeURIComponent(
-    `নমস্কার, ${t(product.name)} এর পাইকারি অর্ডার সম্পর্কে জানতে চাই। / Hello, I want bulk order info for ${t(product.name)}.`,
-  );
 
   return (
     <article
@@ -156,33 +152,15 @@ function BackendProductCard({
             {product.priceRange}
           </p>
         )}
-        <div className="flex gap-2 pt-1">
-          <a
-            href={`${WHATSAPP_BASE}${waMsg}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 inline-flex items-center justify-center gap-1 bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold py-2 px-2 rounded-lg transition-smooth"
-            data-ocid="category-product-whatsapp"
-          >
-            <MessageCircle size={12} />
-            WhatsApp
-          </a>
-          <a
-            href={`tel:${PHONE}`}
-            aria-label="Call Now"
-            className="inline-flex items-center justify-center bg-card border border-primary text-primary hover:bg-primary/10 p-2 rounded-lg transition-smooth"
-            data-ocid="category-product-call"
-          >
-            <Phone size={14} />
-          </a>
+        <div className="flex flex-col gap-2 pt-1">
           <Link
             to="/products/$productId"
             params={{ productId: product.slug }}
-            className="inline-flex items-center justify-center bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted p-2 rounded-lg transition-smooth text-xs font-semibold"
+            className="w-full inline-flex items-center justify-center bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted py-2 rounded-lg transition-smooth text-xs font-semibold"
             aria-label="View product details"
             data-ocid="category-product-detail-link"
           >
-            ›
+            {t({ bn: "বিস্তারিত দেখুন", en: "View Details" })} ›
           </Link>
         </div>
       </div>
@@ -310,10 +288,6 @@ export function CategoryPage({ config }: { config: CategoryPageConfig }) {
         }))
       : [];
 
-  const whatsappMsg = encodeURIComponent(
-    `নমস্কার, ${config.h1En} সম্পর্কে পাইকারি অর্ডার দিতে চাই। দয়া করে মূল্য জানান। / Hello, I want to place a bulk order for ${config.h1En}. Please share pricing.`,
-  );
-
   const breadcrumbItems = [
     { label: "Products", href: "/products" },
     { label: config.h1En },
@@ -363,29 +337,6 @@ export function CategoryPage({ config }: { config: CategoryPageConfig }) {
               available for retailers, puja committees &amp; wholesale buyers
               across India.
             </p>
-            <div
-              className="flex flex-col sm:flex-row gap-3"
-              data-ocid="category-hero-cta"
-            >
-              <a
-                href={`${WHATSAPP_BASE}${whatsappMsg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-3 px-6 rounded-lg transition-smooth"
-                data-ocid="category-hero-whatsapp"
-              >
-                <MessageCircle size={18} />
-                WhatsApp for Bulk Order
-              </a>
-              <a
-                href={`tel:${PHONE}`}
-                className="inline-flex items-center justify-center gap-2 bg-card border border-border text-foreground hover:bg-muted font-semibold py-3 px-6 rounded-lg transition-smooth"
-                data-ocid="category-hero-call"
-              >
-                <Phone size={18} />
-                Call +91 6295466310
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -514,30 +465,10 @@ export function CategoryPage({ config }: { config: CategoryPageConfig }) {
               <h3 className="font-display font-semibold text-xl text-foreground mb-2">
                 Products Coming Soon
               </h3>
-              <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
+              <p className="text-muted-foreground text-sm max-w-sm mx-auto">
                 We are adding product photos and pricing. Contact us directly
                 for current availability and bulk pricing.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a
-                  href={`${WHATSAPP_BASE}${whatsappMsg}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-3 px-6 rounded-lg transition-smooth"
-                  data-ocid="category-empty-whatsapp"
-                >
-                  <MessageCircle size={18} />
-                  WhatsApp for Bulk Order
-                </a>
-                <a
-                  href={`tel:${PHONE}`}
-                  className="inline-flex items-center justify-center gap-2 bg-card border border-border text-foreground hover:bg-muted font-semibold py-3 px-6 rounded-lg transition-smooth"
-                  data-ocid="category-empty-call"
-                >
-                  <Phone size={18} />
-                  Call Now
-                </a>
-              </div>
             </div>
           )}
         </div>
@@ -553,26 +484,7 @@ export function CategoryPage({ config }: { config: CategoryPageConfig }) {
             Bardhaman → Kolkata → Durgapur → Asansol → Dhanbad → Bankura →
             Purulia → All India
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href={`${WHATSAPP_BASE}${whatsappMsg}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-3 px-8 rounded-lg text-lg transition-smooth"
-              data-ocid="category-bottom-whatsapp"
-            >
-              <MessageCircle size={20} />
-              WhatsApp: +91 6295466310
-            </a>
-            <a
-              href={`tel:${PHONE}`}
-              className="inline-flex items-center justify-center gap-2 bg-card border-2 border-primary text-primary hover:bg-primary/10 font-semibold py-3 px-8 rounded-lg text-lg transition-smooth"
-              data-ocid="category-bottom-call"
-            >
-              <Phone size={20} />
-              Call: +91 6295466310
-            </a>
-          </div>
+          <p className="font-semibold text-primary text-lg">+91 6295466310</p>
         </div>
       </section>
 

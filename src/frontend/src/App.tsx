@@ -11,7 +11,6 @@ import {
   createRouter,
   useNavigate,
 } from "@tanstack/react-router";
-import { LogOut, ShieldOff } from "lucide-react";
 import { Suspense, lazy, useEffect } from "react";
 
 // ─── Core Pages ───
@@ -175,11 +174,6 @@ const AdminProductEditPage = lazy(() =>
     default: m.AdminProductEditPage,
   })),
 );
-const AdminCategoryImagesPage = lazy(() =>
-  import("@/pages/admin/AdminCategoryImages").then((m) => ({
-    default: m.AdminCategoryImagesPage,
-  })),
-);
 
 export function PageLoader() {
   return (
@@ -191,62 +185,18 @@ export function PageLoader() {
   );
 }
 
-// ─── Access Denied Screen ───
-function AccessDenied({ onLogout }: { onLogout: () => void }) {
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-sm text-center">
-        <div className="bg-card border border-border rounded-xl shadow-md p-8 flex flex-col items-center">
-          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-            <ShieldOff size={32} className="text-destructive" />
-          </div>
-          <h1 className="font-display font-bold text-xl text-foreground mb-2">
-            প্রবেশাধিকার নেই
-          </h1>
-          <p className="text-sm text-muted-foreground mb-1 leading-relaxed">
-            এই পেজটি শুধুমাত্র ওয়েবসাইটের মালিকের জন্য।
-          </p>
-          <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-            This admin panel is restricted to the website owner only.
-          </p>
-          <div className="flex flex-col gap-2.5 w-full">
-            <a
-              href="/"
-              className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-md font-semibold text-sm transition-smooth"
-              data-ocid="access-denied-go-home"
-            >
-              হোম পেজে ফিরুন
-            </a>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="w-full flex items-center justify-center gap-2 border border-border bg-card text-muted-foreground hover:text-destructive hover:border-destructive/40 px-4 py-2.5 rounded-md font-semibold text-sm transition-smooth"
-              data-ocid="access-denied-logout"
-            >
-              <LogOut size={14} />
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Admin Guard ───
 function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isInitializing, isAdmin, isAdminLoading, logout } =
-    useAdmin();
+  const { isAdmin, isAdminLoading } = useAdmin();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isInitializing && !isAuthenticated) {
+    if (!isAdminLoading && !isAdmin) {
       navigate({ to: "/admin/login" });
     }
-  }, [isAuthenticated, isInitializing, navigate]);
+  }, [isAdmin, isAdminLoading, navigate]);
 
-  // Still checking identity or admin status
-  if (isInitializing || isAdminLoading) {
+  if (isAdminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Skeleton className="h-12 w-48 rounded-md" />
@@ -254,21 +204,7 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  // Authenticated but NOT the owner
-  if (!isAdmin) {
-    return (
-      <AccessDenied
-        onLogout={() => {
-          logout();
-          navigate({ to: "/" });
-        }}
-      />
-    );
-  }
+  if (!isAdmin) return null;
 
   return <AdminLayout>{children}</AdminLayout>;
 }
@@ -480,13 +416,14 @@ const adminProductEditRoute = createRoute({
 const adminCategoryImagesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/admin/category-images",
-  component: () => (
-    <AdminGuard>
-      <Suspense fallback={<PageLoader />}>
-        <AdminCategoryImagesPage />
-      </Suspense>
-    </AdminGuard>
-  ),
+  component: () => {
+    // Redirect old route to /admin (Categories tab is now in dashboard)
+    const navigate = useNavigate();
+    useEffect(() => {
+      navigate({ to: "/admin" });
+    }, [navigate]);
+    return null;
+  },
 });
 
 const routeTree = rootRoute.addChildren([

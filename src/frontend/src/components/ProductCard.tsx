@@ -1,10 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
 import type { ProductCategory } from "@/types";
-import { Phone } from "lucide-react";
-
-const WHATSAPP_BASE = "https://wa.me/916295466310?text=";
 
 interface ProductCardProps {
   product: ProductCategory;
@@ -12,10 +8,6 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { t } = useLanguage();
-
-  const waMessage = encodeURIComponent(
-    `Hello, I am interested in bulk order for ${t(product.name)}. Please share pricing details.`,
-  );
 
   return (
     <article
@@ -65,38 +57,10 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {product.priceRange && (
-          <p className="text-xs font-semibold text-primary mb-2">
+          <p className="text-xs font-semibold text-primary mt-auto">
             {t({ bn: "মূল্য:", en: "Price:" })} {product.priceRange}
           </p>
         )}
-
-        <div className="flex gap-2 mt-auto">
-          <Button
-            asChild
-            size="sm"
-            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 text-xs h-8"
-            data-ocid="product-whatsapp-btn"
-          >
-            <a
-              href={`${WHATSAPP_BASE}${waMessage}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t({ bn: "হোয়াটসঅ্যাপ", en: "WhatsApp" })}
-            </a>
-          </Button>
-          <Button
-            asChild
-            size="sm"
-            variant="outline"
-            className="border-primary text-primary hover:bg-primary/10 h-8 px-2"
-            data-ocid="product-call-btn"
-          >
-            <a href="tel:+916295466310" aria-label="Call Now">
-              <Phone size={13} />
-            </a>
-          </Button>
-        </div>
       </div>
     </article>
   );

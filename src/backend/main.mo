@@ -1,8 +1,11 @@
 import InquiryTypes "types/inquiry";
 import ProductTypes "types/product";
+import BannerTypes "types/banner";
 import InquiryMixin "mixins/inquiry-api";
 import ProductMixin "mixins/product-api";
 import CategoryMixin "mixins/category-api";
+import AdminMixin "mixins/admin-api";
+import BannerMixin "mixins/banner-api";
 import ProductLib "lib/product";
 import CategoryLib "lib/category";
 
@@ -33,9 +36,22 @@ actor {
   let categoryImages = Map.empty<Text, Text>();
   do { CategoryLib.initDefaults(categoryImages) };
 
+  // Admin session store: token -> creation timestamp
+  let adminSessions = Map.empty<Text, Int>();
+
+  // Banner image list and featured product IDs
+  let bannerImages = { var value : [BannerTypes.BannerImage] = [] };
+  let featuredProductIds = { var value : [Nat] = [] };
+
+  func validateSession(token : Text) : Bool {
+    adminSessions.containsKey(token)
+  };
+
   include InquiryMixin(inquiries, nextInquiryId, visitorProfiles, isOwner);
   include ProductMixin(products, nextProductId, isOwner);
   include CategoryMixin(categoryImages, isOwner);
+  include AdminMixin(adminSessions, isOwner);
+  include BannerMixin(bannerImages, featuredProductIds, isOwner, validateSession);
 
   public query func getOwnerPrincipal() : async Text {
     ownerPrincipal.toText();

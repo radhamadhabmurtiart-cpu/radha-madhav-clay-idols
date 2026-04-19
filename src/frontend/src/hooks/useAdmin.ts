@@ -1,168 +1,124 @@
 import { createActor } from "@/backend";
-import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
-import { AuthClient } from "@dfinity/auth-client";
-import { useEffect, useRef, useState } from "react";
+import { useActor } from "@caffeineai/core-infrastructure";
+import { useCallback, useEffect, useState } from "react";
 
-// Internet Identity URL — same URL used by @caffeineai/core-infrastructure internally
-const II_URL = "https://identity.ic0.app";
+const SESSION_KEY = "adminSessionToken";
 
 /**
- * Admin authentication hook using Internet Identity.
- *
- * Key fix for Netlify/mobile production:
- *   We create our OWN AuthClient instance in a useEffect on mount and store it
- *   in a ref. The login button stays disabled until this instance is ready.
- *   On click, we call authClientRef.current.login() directly — this guarantees
- *   the AuthClient is always initialized before login() is invoked, regardless
- *   of any timing differences in @caffeineai/core-infrastructure on production builds.
+ * Admin authentication hook using phone + password.
+ * Token is stored in localStorage under SESSION_KEY.
+ * On mount, the token is validated against the backend.
  */
 export function useAdmin() {
-  const {
-    identity,
-    login: iiLogin,
-    clear,
-    loginStatus,
-    isInitializing,
-    isLoggingIn,
-    isLoginError,
-    loginError,
-  } = useInternetIdentity();
-
   const { actor, isFetching: isActorFetching } = useActor(createActor);
-
-  const isAuthenticated = !!identity;
-  const isLoading = isInitializing || isLoggingIn;
-
-  // Our own AuthClient instance created eagerly on mount
-  const authClientRef = useRef<AuthClient | null>(null);
-  const [authClientReady, setAuthClientReady] = useState(false);
-
-  // Create AuthClient on mount — this is the critical fix.
-  // AuthClient.create() must be called outside any click handler so the
-  // instance is fully ready before the user ever touches the button.
-  useEffect(() => {
-    let cancelled = false;
-
-    async function initAuthClient() {
-      try {
-        const client = await AuthClient.create();
-        if (!cancelled) {
-          authClientRef.current = client;
-          setAuthClientReady(true);
-        }
-      } catch {
-        // If creation fails we fall back to the iiLogin wrapper below
-        if (!cancelled) {
-          setAuthClientReady(true); // unblock the button; login attempt will surface the real error
-        }
-      }
-    }
-
-    initAuthClient();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminLoading, setIsAdminLoading] = useState(true);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  // Validate stored session token on mount / when actor becomes ready
   useEffect(() => {
-    if (!isAuthenticated) {
-      setIsAdmin(false);
-      setIsAdminLoading(false);
+    if (isActorFetching || !actor) {
+      setIsAdminLoading(true);
       return;
     }
 
-    if (isInitializing || isActorFetching || !actor) {
-      setIsAdminLoading(true);
+    const token = localStorage.getItem(SESSION_KEY);
+    if (!token) {
+      setIsAdmin(false);
+      setIsAdminLoading(false);
       return;
     }
 
     let cancelled = false;
     setIsAdminLoading(true);
 
-    async function checkAdmin() {
+    async function validate() {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const actorAny = actor as any;
-        if (typeof actorAny.isAdminCaller === "function") {
-          const result: boolean = await actorAny.isAdminCaller();
-          if (!cancelled) setIsAdmin(result);
-        } else {
-          if (!cancelled) setIsAdmin(false);
-        }
+        const valid = await (
+          actor as ReturnType<typeof createActor>
+        ).validateAdminSession(token!);
+        if (!cancelled) setIsAdmin(valid);
+        if (!cancelled && !valid) localStorage.removeItem(SESSION_KEY);
       } catch {
         if (!cancelled) setIsAdmin(false);
+        if (!cancelled) localStorage.removeItem(SESSION_KEY);
       } finally {
         if (!cancelled) setIsAdminLoading(false);
       }
     }
 
-    checkAdmin();
-
+    validate();
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, isInitializing, isActorFetching, actor]);
+  }, [isActorFetching, actor]);
 
   /**
-   * safeLogin — uses our eagerly-created AuthClient when available.
-   *
-   * Flow:
-   *  1. If our AuthClient ref is ready → call authClient.login() directly.
-   *     This is the production-safe path that avoids the "not initialized yet" error.
-   *  2. Fallback → delegate to useInternetIdentity's login() wrapper.
-   *
-   * The login button is disabled until both authClientReady AND !isInitializing,
-   * so this function should never be called in an unready state — but we guard
-   * defensively anyway.
+   * Login with phone + password.
+   * On success stores the session token in localStorage and sets isAdmin=true.
    */
-  function safeLogin() {
-    if (!authClientReady || isInitializing) {
-      // Not ready yet — button should already be disabled, but guard anyway
-      return;
-    }
+  const login = useCallback(
+    async (phone: string, password: string): Promise<boolean> => {
+      if (!actor) {
+        setLoginError("Service not ready. Please try again.");
+        return false;
+      }
+      setIsLoggingIn(true);
+      setLoginError(null);
+      try {
+        const result = await (
+          actor as ReturnType<typeof createActor>
+        ).adminLogin(phone, password);
+        if (result.__kind__ === "ok") {
+          localStorage.setItem(SESSION_KEY, result.ok);
+          setIsAdmin(true);
+          return true;
+        }
+        setLoginError(result.err ?? "Invalid phone number or password.");
+        return false;
+      } catch (err) {
+        setLoginError(
+          err instanceof Error
+            ? err.message
+            : "Login failed. Please try again.",
+        );
+        return false;
+      } finally {
+        setIsLoggingIn(false);
+      }
+    },
+    [actor],
+  );
 
-    if (authClientRef.current) {
-      // Use our own AuthClient instance directly — guaranteed to be initialized
-      authClientRef.current.login({
-        identityProvider: II_URL,
-        onSuccess: () => {
-          // Reload the page so @caffeineai/core-infrastructure picks up the
-          // new session from the same AuthClient storage
-          window.location.reload();
-        },
-        onError: (err?: string) => {
-          // Surface the error through the existing error state by falling back
-          // to the iiLogin path — it will re-attempt and capture the error
-          console.error("AuthClient login error:", err);
-          iiLogin();
-        },
-      });
-    } else {
-      // Fallback: delegate to the hook's own login
-      iiLogin();
+  /** Logout — clears server session + localStorage */
+  const logout = useCallback(async () => {
+    const token = localStorage.getItem(SESSION_KEY);
+    if (token && actor) {
+      try {
+        await (actor as ReturnType<typeof createActor>).adminLogout(token);
+      } catch {
+        // ignore — we clear locally regardless
+      }
     }
-  }
+    localStorage.removeItem(SESSION_KEY);
+    setIsAdmin(false);
+  }, [actor]);
 
-  // The button should be disabled while either our AuthClient is creating
-  // OR the @caffeineai/core-infrastructure is still initializing
-  const isButtonDisabled = !authClientReady || isInitializing || isLoggingIn;
+  /** Convenience: read stored token (for passing to mutations) */
+  const getSessionToken = useCallback((): string | null => {
+    return localStorage.getItem(SESSION_KEY);
+  }, []);
 
   return {
-    identity,
-    isAuthenticated,
-    isLoading,
     isAdmin,
     isAdminLoading,
-    isInitializing: isButtonDisabled, // reuse the same flag name so AdminLoginPage needs no changes
+    isActorReady: !isActorFetching && !!actor,
     isLoggingIn,
-    isLoginError,
     loginError,
-    loginStatus,
-    login: safeLogin,
-    logout: clear,
+    login,
+    logout,
+    getSessionToken,
   };
 }

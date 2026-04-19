@@ -22,6 +22,12 @@ export interface AddProductInput {
   'priceRangeMax' : bigint,
   'priceRangeMin' : bigint,
 }
+export interface BannerImage {
+  'id' : string,
+  'title' : string,
+  'displayOrder' : bigint,
+  'imageUrl' : string,
+}
 export interface CategoryImage { 'slug' : string, 'imageUrl' : string }
 export interface CategoryInfo {
   'nameBn' : string,
@@ -87,10 +93,18 @@ export interface _SERVICE {
     { 'ok' : Product } |
       { 'err' : string }
   >,
+  'adminLogin' : ActorMethod<
+    [string, string],
+    { 'ok' : string } |
+      { 'err' : string }
+  >,
+  'adminLogout' : ActorMethod<[string], undefined>,
   'deleteProduct' : ActorMethod<[bigint], { 'ok' : null } | { 'err' : string }>,
+  'getBannerImages' : ActorMethod<[], Array<BannerImage>>,
   'getCategoryImage' : ActorMethod<[string], [] | [string]>,
   'getCategoryImages' : ActorMethod<[], Array<CategoryImage>>,
   'getCategoryList' : ActorMethod<[], Array<CategoryInfo>>,
+  'getFeaturedProductIds' : ActorMethod<[], Array<bigint>>,
   'getInquiries' : ActorMethod<
     [],
     { 'ok' : Array<InquiryRecord> } |
@@ -121,12 +135,23 @@ export interface _SERVICE {
     { 'ok' : string } |
       { 'err' : string }
   >,
+  'updateBannerImages' : ActorMethod<
+    [Array<BannerImage>, [] | [string]],
+    { 'ok' : null } |
+      { 'err' : string }
+  >,
   'updateCategoryImage' : ActorMethod<[string, string], boolean>,
+  'updateFeaturedProductIds' : ActorMethod<
+    [Array<bigint>, [] | [string]],
+    { 'ok' : null } |
+      { 'err' : string }
+  >,
   'updateProduct' : ActorMethod<
     [UpdateProductInput],
     { 'ok' : Product } |
       { 'err' : string }
   >,
+  'validateAdminSession' : ActorMethod<[string], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

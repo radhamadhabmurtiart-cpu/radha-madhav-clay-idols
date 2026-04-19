@@ -91,4 +91,14 @@ export const mockBackend: ExtendedBackend = {
       registeredAt: BigInt(Date.now()),
     },
   }),
+  adminLogin: async (_phone, _password) => ({
+    __kind__: "ok" as const,
+    ok: "mock-session-token",
+  }),
+  adminLogout: async (_token) => {},
+  validateAdminSession: async (_token) => true,
+  getBannerImages: async () => [],
+  updateBannerImages: async (_images, _token) => ({ __kind__: "ok" as const, ok: null }),
+  getFeaturedProductIds: async () => [],
+  updateFeaturedProductIds: async (_ids, _token) => ({ __kind__: "ok" as const, ok: null }),
 };

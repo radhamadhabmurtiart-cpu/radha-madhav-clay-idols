@@ -48,6 +48,12 @@ export const Product = IDL.Record({
   'priceRangeMax' : IDL.Nat,
   'priceRangeMin' : IDL.Nat,
 });
+export const BannerImage = IDL.Record({
+  'id' : IDL.Text,
+  'title' : IDL.Text,
+  'displayOrder' : IDL.Nat,
+  'imageUrl' : IDL.Text,
+});
 export const CategoryImage = IDL.Record({
   'slug' : IDL.Text,
   'imageUrl' : IDL.Text,
@@ -91,14 +97,22 @@ export const idlService = IDL.Service({
       [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
       [],
     ),
+  'adminLogin' : IDL.Func(
+      [IDL.Text, IDL.Text],
+      [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+      [],
+    ),
+  'adminLogout' : IDL.Func([IDL.Text], [], []),
   'deleteProduct' : IDL.Func(
       [IDL.Nat],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
       [],
     ),
+  'getBannerImages' : IDL.Func([], [IDL.Vec(BannerImage)], ['query']),
   'getCategoryImage' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
   'getCategoryImages' : IDL.Func([], [IDL.Vec(CategoryImage)], ['query']),
   'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
+  'getFeaturedProductIds' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
   'getInquiries' : IDL.Func(
       [],
       [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
@@ -129,12 +143,23 @@ export const idlService = IDL.Service({
       [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
       [],
     ),
+  'updateBannerImages' : IDL.Func(
+      [IDL.Vec(BannerImage), IDL.Opt(IDL.Text)],
+      [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+      [],
+    ),
   'updateCategoryImage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+  'updateFeaturedProductIds' : IDL.Func(
+      [IDL.Vec(IDL.Nat), IDL.Opt(IDL.Text)],
+      [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+      [],
+    ),
   'updateProduct' : IDL.Func(
       [UpdateProductInput],
       [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
       [],
     ),
+  'validateAdminSession' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
 });
 
 export const idlInitArgs = [];
@@ -180,6 +205,12 @@ export const idlFactory = ({ IDL }) => {
     'priceRangeMax' : IDL.Nat,
     'priceRangeMin' : IDL.Nat,
   });
+  const BannerImage = IDL.Record({
+    'id' : IDL.Text,
+    'title' : IDL.Text,
+    'displayOrder' : IDL.Nat,
+    'imageUrl' : IDL.Text,
+  });
   const CategoryImage = IDL.Record({
     'slug' : IDL.Text,
     'imageUrl' : IDL.Text,
@@ -223,14 +254,22 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
         [],
       ),
+    'adminLogin' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
+        [],
+      ),
+    'adminLogout' : IDL.Func([IDL.Text], [], []),
     'deleteProduct' : IDL.Func(
         [IDL.Nat],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
         [],
       ),
+    'getBannerImages' : IDL.Func([], [IDL.Vec(BannerImage)], ['query']),
     'getCategoryImage' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
     'getCategoryImages' : IDL.Func([], [IDL.Vec(CategoryImage)], ['query']),
     'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
+    'getFeaturedProductIds' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'getInquiries' : IDL.Func(
         [],
         [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
@@ -265,12 +304,23 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'ok' : IDL.Text, 'err' : IDL.Text })],
         [],
       ),
+    'updateBannerImages' : IDL.Func(
+        [IDL.Vec(BannerImage), IDL.Opt(IDL.Text)],
+        [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+        [],
+      ),
     'updateCategoryImage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+    'updateFeaturedProductIds' : IDL.Func(
+        [IDL.Vec(IDL.Nat), IDL.Opt(IDL.Text)],
+        [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+        [],
+      ),
     'updateProduct' : IDL.Func(
         [UpdateProductInput],
         [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
         [],
       ),
+    'validateAdminSession' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
   });
 };
 
