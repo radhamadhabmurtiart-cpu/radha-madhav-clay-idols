@@ -1,6 +1,5 @@
 import Types "../types/admin";
 import Map "mo:core/Map";
-import Runtime "mo:core/Runtime";
 
 module {
   public type AdminSession = Types.AdminSession;
@@ -15,16 +14,22 @@ module {
     password : Text,
     now : Int,
   ) : ?Text {
-    Runtime.trap("not implemented");
+    if (phone != ADMIN_PHONE or password != ADMIN_PASSWORD) {
+      return null;
+    };
+    // Generate a unique token from the current timestamp
+    let token = "admin-" # now.toText();
+    sessions.add(token, now);
+    ?token;
   };
 
   /// Returns true if the token is present in the sessions map.
   public func validate(sessions : Map.Map<Text, Int>, token : Text) : Bool {
-    Runtime.trap("not implemented");
+    sessions.containsKey(token);
   };
 
   /// Removes the token from the sessions map.
   public func logout(sessions : Map.Map<Text, Int>, token : Text) {
-    Runtime.trap("not implemented");
+    sessions.remove(token);
   };
 };

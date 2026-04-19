@@ -1,19 +1,40 @@
 import type { BannerImage } from "@/backend";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SlidingBannerProps {
   images: BannerImage[];
 }
 
-const DEFAULT_BANNER: BannerImage = {
-  id: "default",
-  imageUrl: "/assets/generated/hero-clay-idols.dim_1200x600.jpg",
-  title: "Premium Handmade Clay Idols – Wholesale from Bardhaman",
-  displayOrder: 0n,
-};
+const DEFAULT_BANNERS: BannerImage[] = [
+  {
+    id: "default-1",
+    imageUrl: "/assets/generated/banner-ganesh-workshop.dim_1400x700.jpg",
+    title: "",
+    displayOrder: 0n,
+  },
+  {
+    id: "default-2",
+    imageUrl: "/assets/generated/banner-durga-idols.dim_1400x700.jpg",
+    title: "",
+    displayOrder: 1n,
+  },
+  {
+    id: "default-3",
+    imageUrl: "/assets/generated/banner-lakshmi-craft.dim_1400x700.jpg",
+    title: "",
+    displayOrder: 2n,
+  },
+  {
+    id: "default-4",
+    imageUrl: "/assets/generated/banner-idol-collection.dim_1400x700.jpg",
+    title: "",
+    displayOrder: 3n,
+  },
+];
 
 export function SlidingBanner({ images }: SlidingBannerProps) {
-  const slides = images.length > 0 ? images : [DEFAULT_BANNER];
+  const slides = images.length > 0 ? images : DEFAULT_BANNERS;
   const [current, setCurrent] = useState(0);
   const [fading, setFading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -36,6 +57,16 @@ export function SlidingBanner({ images }: SlidingBannerProps) {
     }, 300);
   }
 
+  function goPrev() {
+    goTo((current - 1 + slides.length) % slides.length);
+    startTimer();
+  }
+
+  function goNext() {
+    goTo((current + 1) % slides.length);
+    startTimer();
+  }
+
   useEffect(() => {
     if (slides.length <= 1) return;
     startTimer();
@@ -48,18 +79,17 @@ export function SlidingBanner({ images }: SlidingBannerProps) {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-2xl shadow-lg"
-      style={{ aspectRatio: "16/6" }}
+      className="relative w-full overflow-hidden rounded-2xl shadow-lg h-[50vh] md:h-[65vh]"
       data-ocid="sliding-banner"
       aria-label="Featured banner"
     >
       {/* Image */}
       <div
-        className={`absolute inset-0 transition-opacity duration-300 ${fading ? "opacity-0" : "opacity-100"}`}
+        className={`absolute inset-0 transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"}`}
       >
         <img
           src={slide.imageUrl}
-          alt={slide.title}
+          alt="Handcrafted clay idol by Radha Madhav Mrit Shilpalay Bardhaman"
           className="w-full h-full object-cover"
           loading="eager"
           onError={(e) => {
@@ -67,25 +97,38 @@ export function SlidingBanner({ images }: SlidingBannerProps) {
               "/assets/generated/hero-clay-idols.dim_1200x600.jpg";
           }}
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[oklch(0.12_0.06_35/0.70)] via-transparent to-transparent" />
       </div>
 
-      {/* Title overlay */}
-      {slide.title && (
-        <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-8 z-10">
-          <p
-            className={`text-sm sm:text-base lg:text-lg font-semibold text-[oklch(0.97_0.04_80)] drop-shadow-md transition-opacity duration-300 ${fading ? "opacity-0" : "opacity-100"}`}
-          >
-            {slide.title}
-          </p>
-        </div>
+      {/* Left arrow */}
+      {slides.length > 1 && (
+        <button
+          type="button"
+          onClick={goPrev}
+          aria-label="Previous slide"
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white rounded-full p-1.5 backdrop-blur-sm transition-all duration-200"
+          data-ocid="banner-prev-btn"
+        >
+          <ChevronLeft size={20} />
+        </button>
+      )}
+
+      {/* Right arrow */}
+      {slides.length > 1 && (
+        <button
+          type="button"
+          onClick={goNext}
+          aria-label="Next slide"
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white rounded-full p-1.5 backdrop-blur-sm transition-all duration-200"
+          data-ocid="banner-next-btn"
+        >
+          <ChevronRight size={20} />
+        </button>
       )}
 
       {/* Dot indicators */}
       {slides.length > 1 && (
         <div
-          className="absolute bottom-3 right-4 flex gap-1.5 z-20"
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20"
           role="tablist"
           aria-label="Banner slides"
         >
@@ -103,7 +146,7 @@ export function SlidingBanner({ images }: SlidingBannerProps) {
               className={`rounded-full transition-all duration-200 ${
                 i === current
                   ? "w-5 h-2 bg-secondary"
-                  : "w-2 h-2 bg-[oklch(0.97_0.04_80/0.55)] hover:bg-[oklch(0.97_0.04_80/0.80)]"
+                  : "w-2 h-2 bg-white/55 hover:bg-white/80"
               }`}
               data-ocid={`banner-dot-${i + 1}`}
             />

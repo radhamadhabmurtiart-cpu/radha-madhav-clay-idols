@@ -365,10 +365,15 @@ export function HomePage() {
                   const catEntry = PRODUCT_CATEGORIES.find(
                     (c) => c.slug === catSlug,
                   );
+                  // imageIds stores URL strings entered by admin; use first non-empty one
+                  const firstImageId = product.imageIds.find(
+                    (id) => id.trim() !== "",
+                  );
                   const imageSrc =
-                    product.imageIds[0] ||
+                    firstImageId ||
                     catEntry?.image ||
                     "/assets/generated/hero-clay-idols.dim_1200x600.jpg";
+                  const hasRealImage = Boolean(firstImageId);
                   const priceLabel =
                     product.priceRangeMin > 0n
                       ? `₹${product.priceRangeMin.toString()} – ₹${product.priceRangeMax.toString()}`
@@ -384,14 +389,23 @@ export function HomePage() {
                       <div className="relative overflow-hidden aspect-[4/3] bg-muted">
                         <img
                           src={imageSrc}
-                          alt={`${product.nameEn} - clay idol wholesale`}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          alt={`${product.nameEn} - clay idol wholesale Bardhaman`}
+                          className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${hasRealImage ? "" : "opacity-80"}`}
                           loading="lazy"
                           onError={(e) => {
-                            e.currentTarget.src =
-                              "/assets/generated/hero-clay-idols.dim_1200x600.jpg";
+                            e.currentTarget.style.display = "none";
+                            const fallback = e.currentTarget
+                              .nextElementSibling as HTMLElement | null;
+                            if (fallback) fallback.classList.remove("hidden");
                           }}
                         />
+                        {/* Fallback placeholder shown if image fails */}
+                        <div className="hidden absolute inset-0 flex flex-col items-center justify-center bg-primary/5 gap-2">
+                          <span className="text-5xl">🏺</span>
+                          <span className="text-xs text-muted-foreground font-medium">
+                            {product.nameEn}
+                          </span>
+                        </div>
                         {product.bulkAvailable && (
                           <span className="absolute top-2 left-2 bg-secondary text-secondary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
                             {t({ bn: "পাইকারি", en: "Wholesale" })}
