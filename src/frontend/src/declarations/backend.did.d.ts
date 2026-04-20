@@ -89,7 +89,7 @@ export interface VisitorProfile {
 }
 export interface _SERVICE {
   'addProduct' : ActorMethod<
-    [AddProductInput],
+    [AddProductInput, [] | [string]],
     { 'ok' : Product } |
       { 'err' : string }
   >,
@@ -99,14 +99,18 @@ export interface _SERVICE {
       { 'err' : string }
   >,
   'adminLogout' : ActorMethod<[string], undefined>,
-  'deleteProduct' : ActorMethod<[bigint], { 'ok' : null } | { 'err' : string }>,
+  'deleteProduct' : ActorMethod<
+    [bigint, [] | [string]],
+    { 'ok' : null } |
+      { 'err' : string }
+  >,
   'getBannerImages' : ActorMethod<[], Array<BannerImage>>,
   'getCategoryImage' : ActorMethod<[string], [] | [string]>,
   'getCategoryImages' : ActorMethod<[], Array<CategoryImage>>,
   'getCategoryList' : ActorMethod<[], Array<CategoryInfo>>,
   'getFeaturedProductIds' : ActorMethod<[], Array<bigint>>,
   'getInquiries' : ActorMethod<
-    [],
+    [[] | [string]],
     { 'ok' : Array<InquiryRecord> } |
       { 'err' : string }
   >,
@@ -120,7 +124,7 @@ export interface _SERVICE {
   'getProducts' : ActorMethod<[], Array<Product>>,
   'getProductsByCategory' : ActorMethod<[string], Array<Product>>,
   'getVisitors' : ActorMethod<
-    [],
+    [[] | [string]],
     { 'ok' : Array<VisitorProfile> } |
       { 'err' : string }
   >,
@@ -140,14 +144,14 @@ export interface _SERVICE {
     { 'ok' : null } |
       { 'err' : string }
   >,
-  'updateCategoryImage' : ActorMethod<[string, string], boolean>,
+  'updateCategoryImage' : ActorMethod<[string, string, [] | [string]], boolean>,
   'updateFeaturedProductIds' : ActorMethod<
     [Array<bigint>, [] | [string]],
     { 'ok' : null } |
       { 'err' : string }
   >,
   'updateProduct' : ActorMethod<
-    [UpdateProductInput],
+    [UpdateProductInput, [] | [string]],
     { 'ok' : Product } |
       { 'err' : string }
   >,

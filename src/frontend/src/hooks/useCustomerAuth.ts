@@ -1,6 +1,7 @@
 import { createActor } from "@/backend";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 /**
  * Customer authentication hook using Internet Identity.
@@ -8,8 +9,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * After login, fetches the visitor's registered name from the backend.
  */
 export function useCustomerAuth() {
-  const { identity, login, clear, isInitializing, isLoggingIn } =
-    useInternetIdentity();
+  const {
+    identity,
+    login: _iiLogin,
+    clear,
+    isInitializing,
+    isLoggingIn,
+    isLoginError,
+    loginError,
+  } = useInternetIdentity();
 
   const { actor, isFetching } = useActor(createActor);
 
@@ -48,7 +56,7 @@ export function useCustomerAuth() {
       setIsLoadingProfile(false);
       setProfileChecked(true);
     }
-  }, [actor, isAuthenticated, isFetching, identity, profileChecked]);
+  }, [actor, isFetching, identity, profileChecked, isAuthenticated]);
 
   // Fetch visitor profile whenever identity or actor becomes ready
   useEffect(() => {
@@ -61,6 +69,26 @@ export function useCustomerAuth() {
     if (isInitializing || isFetching || !actor) return;
     fetchVisitorProfile();
   }, [isAuthenticated, isInitializing, isFetching, actor, fetchVisitorProfile]);
+
+  /**
+   * Wraps Internet Identity login with error feedback via toast.
+   * The underlying II login is a popup-based flow.
+   */
+  const login = useCallback(() => {
+    try {
+      _iiLogin();
+    } catch (err) {
+      console.error("Login exception:", err);
+      toast.error("Login failed. Please try again.");
+    }
+  }, [_iiLogin]);
+
+  // Show toast when login errors occur (covers Netlify/mobile failures)
+  useEffect(() => {
+    if (isLoginError && loginError) {
+      toast.error(`Login failed: ${loginError.message}`);
+    }
+  }, [isLoginError, loginError]);
 
   // Register a visitor and immediately update the displayed name
   const registerVisitorProfile = useCallback(

@@ -7,9 +7,16 @@ mixin (
   products : List.List<Types.Product>,
   nextProductId : { var value : Nat },
   isOwner : (Principal) -> Bool,
+  validateSession : (Text) -> Bool,
 ) {
-  public shared ({ caller }) func addProduct(input : Types.AddProductInput) : async { #ok : Types.Product; #err : Text } {
-    if (not isOwner(caller)) {
+  public shared ({ caller }) func addProduct(input : Types.AddProductInput, sessionToken : ?Text) : async { #ok : Types.Product; #err : Text } {
+    let authorized = isOwner(caller) or (
+      switch (sessionToken) {
+        case (?t) validateSession(t);
+        case null false;
+      }
+    );
+    if (not authorized) {
       return #err("Unauthorized");
     };
     let now = Time.now();
@@ -18,8 +25,14 @@ mixin (
     #ok(product)
   };
 
-  public shared ({ caller }) func updateProduct(input : Types.UpdateProductInput) : async { #ok : Types.Product; #err : Text } {
-    if (not isOwner(caller)) {
+  public shared ({ caller }) func updateProduct(input : Types.UpdateProductInput, sessionToken : ?Text) : async { #ok : Types.Product; #err : Text } {
+    let authorized = isOwner(caller) or (
+      switch (sessionToken) {
+        case (?t) validateSession(t);
+        case null false;
+      }
+    );
+    if (not authorized) {
       return #err("Unauthorized");
     };
     let now = Time.now();
@@ -29,8 +42,14 @@ mixin (
     }
   };
 
-  public shared ({ caller }) func deleteProduct(id : Nat) : async { #ok; #err : Text } {
-    if (not isOwner(caller)) {
+  public shared ({ caller }) func deleteProduct(id : Nat, sessionToken : ?Text) : async { #ok; #err : Text } {
+    let authorized = isOwner(caller) or (
+      switch (sessionToken) {
+        case (?t) validateSession(t);
+        case null false;
+      }
+    );
+    if (not authorized) {
       return #err("Unauthorized");
     };
     if (ProductLib.delete(products, id)) { #ok }

@@ -90,29 +90,32 @@ type AddProductInput =
    sizes: vec text;
  };
 service : {
-  addProduct: (input: AddProductInput) -> (variant {
-                                             err: text;
-                                             ok: Product;
-                                           });
+  addProduct: (input: AddProductInput, sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok: Product;
+    });
   adminLogin: (phone: text, password: text) ->
    (variant {
       err: text;
       ok: text;
     });
   adminLogout: (token: text) -> ();
-  deleteProduct: (id: nat) -> (variant {
-                                 err: text;
-                                 ok;
-                               });
+  deleteProduct: (id: nat, sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok;
+    });
   getBannerImages: () -> (vec BannerImage) query;
   getCategoryImage: (slug: text) -> (opt text) query;
   getCategoryImages: () -> (vec CategoryImage) query;
   getCategoryList: () -> (vec CategoryInfo) query;
   getFeaturedProductIds: () -> (vec nat) query;
-  getInquiries: () -> (variant {
-                         err: text;
-                         ok: vec InquiryRecord;
-                       });
+  getInquiries: (sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok: vec InquiryRecord;
+    });
   getMyProfile: () -> (variant {
                          err: text;
                          ok: VisitorProfile;
@@ -121,10 +124,11 @@ service : {
   getProduct: (id: nat) -> (opt Product) query;
   getProducts: () -> (vec Product) query;
   getProductsByCategory: (slug: text) -> (vec Product) query;
-  getVisitors: () -> (variant {
-                        err: text;
-                        ok: vec VisitorProfile;
-                      });
+  getVisitors: (sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok: vec VisitorProfile;
+    });
   isAdminCaller: () -> (bool) query;
   registerVisitor: (name: text, phone: text) ->
    (variant {
@@ -141,13 +145,14 @@ service : {
       err: text;
       ok;
     });
-  updateCategoryImage: (slug: text, imageUrl: text) -> (bool);
+  updateCategoryImage: (slug: text, imageUrl: text, sessionToken:
+   opt text) -> (bool);
   updateFeaturedProductIds: (ids: vec nat, sessionToken: opt text) ->
    (variant {
       err: text;
       ok;
     });
-  updateProduct: (input: UpdateProductInput) ->
+  updateProduct: (input: UpdateProductInput, sessionToken: opt text) ->
    (variant {
       err: text;
       ok: Product;

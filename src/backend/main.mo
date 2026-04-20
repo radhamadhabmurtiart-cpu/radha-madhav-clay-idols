@@ -47,9 +47,9 @@ actor {
     adminSessions.containsKey(token)
   };
 
-  include InquiryMixin(inquiries, nextInquiryId, visitorProfiles, isOwner);
-  include ProductMixin(products, nextProductId, isOwner);
-  include CategoryMixin(categoryImages, isOwner);
+  include InquiryMixin(inquiries, nextInquiryId, visitorProfiles, isOwner, validateSession);
+  include ProductMixin(products, nextProductId, isOwner, validateSession);
+  include CategoryMixin(categoryImages, isOwner, validateSession);
   include AdminMixin(adminSessions, isOwner);
   include BannerMixin(bannerImages, featuredProductIds, isOwner, validateSession);
 

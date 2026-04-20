@@ -90,7 +90,7 @@ export enum ProductCategory {
     kartik = "kartik"
 }
 export interface backendInterface {
-    addProduct(input: AddProductInput): Promise<{
+    addProduct(input: AddProductInput, sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Product;
     } | {
@@ -105,7 +105,7 @@ export interface backendInterface {
         err: string;
     }>;
     adminLogout(token: string): Promise<void>;
-    deleteProduct(id: bigint): Promise<{
+    deleteProduct(id: bigint, sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: null;
     } | {
@@ -117,7 +117,7 @@ export interface backendInterface {
     getCategoryImages(): Promise<Array<CategoryImage>>;
     getCategoryList(): Promise<Array<CategoryInfo>>;
     getFeaturedProductIds(): Promise<Array<bigint>>;
-    getInquiries(): Promise<{
+    getInquiries(sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
     } | {
@@ -135,7 +135,7 @@ export interface backendInterface {
     getProduct(id: bigint): Promise<Product | null>;
     getProducts(): Promise<Array<Product>>;
     getProductsByCategory(slug: string): Promise<Array<Product>>;
-    getVisitors(): Promise<{
+    getVisitors(sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Array<VisitorProfile>;
     } | {
@@ -164,7 +164,7 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
-    updateCategoryImage(slug: string, imageUrl: string): Promise<boolean>;
+    updateCategoryImage(slug: string, imageUrl: string, sessionToken: string | null): Promise<boolean>;
     updateFeaturedProductIds(ids: Array<bigint>, sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: null;
@@ -172,7 +172,7 @@ export interface backendInterface {
         __kind__: "err";
         err: string;
     }>;
-    updateProduct(input: UpdateProductInput): Promise<{
+    updateProduct(input: UpdateProductInput, sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Product;
     } | {

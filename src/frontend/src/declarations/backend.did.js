@@ -93,7 +93,7 @@ export const UpdateProductInput = IDL.Record({
 
 export const idlService = IDL.Service({
   'addProduct' : IDL.Func(
-      [AddProductInput],
+      [AddProductInput, IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
       [],
     ),
@@ -104,7 +104,7 @@ export const idlService = IDL.Service({
     ),
   'adminLogout' : IDL.Func([IDL.Text], [], []),
   'deleteProduct' : IDL.Func(
-      [IDL.Nat],
+      [IDL.Nat, IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
       [],
     ),
@@ -114,7 +114,7 @@ export const idlService = IDL.Service({
   'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
   'getFeaturedProductIds' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
   'getInquiries' : IDL.Func(
-      [],
+      [IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
       [],
     ),
@@ -128,7 +128,7 @@ export const idlService = IDL.Service({
   'getProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
   'getProductsByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Product)], ['query']),
   'getVisitors' : IDL.Func(
-      [],
+      [IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Vec(VisitorProfile), 'err' : IDL.Text })],
       [],
     ),
@@ -148,14 +148,18 @@ export const idlService = IDL.Service({
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
       [],
     ),
-  'updateCategoryImage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+  'updateCategoryImage' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+      [IDL.Bool],
+      [],
+    ),
   'updateFeaturedProductIds' : IDL.Func(
       [IDL.Vec(IDL.Nat), IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
       [],
     ),
   'updateProduct' : IDL.Func(
-      [UpdateProductInput],
+      [UpdateProductInput, IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
       [],
     ),
@@ -250,7 +254,7 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     'addProduct' : IDL.Func(
-        [AddProductInput],
+        [AddProductInput, IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
         [],
       ),
@@ -261,7 +265,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'adminLogout' : IDL.Func([IDL.Text], [], []),
     'deleteProduct' : IDL.Func(
-        [IDL.Nat],
+        [IDL.Nat, IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
         [],
       ),
@@ -271,7 +275,7 @@ export const idlFactory = ({ IDL }) => {
     'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
     'getFeaturedProductIds' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'getInquiries' : IDL.Func(
-        [],
+        [IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
         [],
       ),
@@ -289,7 +293,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getVisitors' : IDL.Func(
-        [],
+        [IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : IDL.Vec(VisitorProfile), 'err' : IDL.Text })],
         [],
       ),
@@ -309,14 +313,18 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
         [],
       ),
-    'updateCategoryImage' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+    'updateCategoryImage' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+        [IDL.Bool],
+        [],
+      ),
     'updateFeaturedProductIds' : IDL.Func(
         [IDL.Vec(IDL.Nat), IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
         [],
       ),
     'updateProduct' : IDL.Func(
-        [UpdateProductInput],
+        [UpdateProductInput, IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : Product, 'err' : IDL.Text })],
         [],
       ),

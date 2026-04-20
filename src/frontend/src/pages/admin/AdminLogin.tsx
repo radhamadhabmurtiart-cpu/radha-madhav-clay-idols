@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export function AdminLoginPage() {
   const {
@@ -56,6 +57,7 @@ export function AdminLoginPage() {
 
     const success = await login(phone.trim(), password);
     if (success) {
+      toast.success("Logged in successfully!");
       navigate({ to: "/admin" });
     }
   }

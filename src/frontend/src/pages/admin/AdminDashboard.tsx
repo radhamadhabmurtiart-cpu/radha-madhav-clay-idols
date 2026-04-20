@@ -170,7 +170,8 @@ function useUpdateCategoryImage() {
       imageUrl,
     }: { slug: string; imageUrl: string }) => {
       if (!actor) throw new Error("Actor not ready");
-      const ok = await actor.updateCategoryImage(slug, imageUrl);
+      const token = localStorage.getItem("adminSessionToken");
+      const ok = await actor.updateCategoryImage(slug, imageUrl, token);
       if (!ok) throw new Error("Failed to update image");
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categoryImages"] }),

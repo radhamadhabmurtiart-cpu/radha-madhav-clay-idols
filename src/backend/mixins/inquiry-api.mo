@@ -9,6 +9,7 @@ mixin (
   nextInquiryId : { var value : Nat },
   visitorProfiles : Map.Map<Principal, Types.VisitorProfile>,
   isOwner : (Principal) -> Bool,
+  validateSession : (Text) -> Bool,
 ) {
   public func submitInquiry(
     name : Text,
@@ -37,8 +38,14 @@ mixin (
     #ok("Inquiry submitted successfully");
   };
 
-  public shared ({ caller }) func getInquiries() : async { #ok : [Types.InquiryRecord]; #err : Text } {
-    if (not isOwner(caller)) {
+  public shared ({ caller }) func getInquiries(sessionToken : ?Text) : async { #ok : [Types.InquiryRecord]; #err : Text } {
+    let authorized = isOwner(caller) or (
+      switch (sessionToken) {
+        case (?t) validateSession(t);
+        case null false;
+      }
+    );
+    if (not authorized) {
       return #err("Unauthorized");
     };
     #ok(InquiryLib.list(inquiries));
@@ -75,8 +82,14 @@ mixin (
   };
 
   /// Owner-only: returns all registered visitor profiles for sales follow-up.
-  public shared ({ caller }) func getVisitors() : async { #ok : [Types.VisitorProfile]; #err : Text } {
-    if (not isOwner(caller)) {
+  public shared ({ caller }) func getVisitors(sessionToken : ?Text) : async { #ok : [Types.VisitorProfile]; #err : Text } {
+    let authorized = isOwner(caller) or (
+      switch (sessionToken) {
+        case (?t) validateSession(t);
+        case null false;
+      }
+    );
+    if (not authorized) {
       return #err("Unauthorized");
     };
     #ok(InquiryLib.listProfiles(visitorProfiles));
