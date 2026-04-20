@@ -1,5 +1,6 @@
 import { createActor } from "@/backend";
 import type { BannerImage } from "@/backend";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -187,17 +188,17 @@ interface CategoryRowProps {
 function CategoryRow({ slug, currentImageUrl }: CategoryRowProps) {
   const meta = CATEGORY_META[slug];
   const updateImage = useUpdateCategoryImage();
-  const [inputUrl, setInputUrl] = useState(currentImageUrl);
+  const [fileId, setFileId] = useState(currentImageUrl);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    setInputUrl(currentImageUrl);
+    setFileId(currentImageUrl);
   }, [currentImageUrl]);
 
   async function handleSave() {
     setIsSaving(true);
     try {
-      await updateImage.mutateAsync({ slug, imageUrl: inputUrl.trim() });
+      await updateImage.mutateAsync({ slug, imageUrl: fileId.trim() });
       toast.success(`"${meta?.nameEn ?? slug}" image updated!`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save image.");
@@ -211,56 +212,38 @@ function CategoryRow({ slug, currentImageUrl }: CategoryRowProps) {
       className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start"
       data-ocid={`category-image-row.${slug}`}
     >
-      {/* Thumbnail */}
-      <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-border bg-muted flex items-center justify-center">
-        {inputUrl ? (
-          <img
-            src={inputUrl}
-            alt={meta?.nameEn ?? slug}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = "none";
-            }}
-          />
-        ) : (
-          <ImageIcon size={20} className="text-muted-foreground/40" />
-        )}
+      {/* Image Upload */}
+      <div className="w-full sm:w-48 shrink-0">
+        <ImageUpload
+          fileId={fileId}
+          onChange={setFileId}
+          ocid={`category-image-upload.${slug}`}
+        />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 space-y-2">
+      <div className="flex-1 min-w-0 space-y-3">
         <div>
           <p className="font-semibold text-sm text-foreground">
             {meta?.nameEn ?? slug}
           </p>
           <p className="text-xs text-muted-foreground">{meta?.nameBn ?? ""}</p>
         </div>
-        <div className="flex gap-2 items-end">
-          <div className="flex-1">
-            <Input
-              value={inputUrl}
-              onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="h-8 text-xs"
-              data-ocid={`category-image-input.${slug}`}
-            />
-          </div>
-          <Button
-            type="button"
-            size="sm"
-            className="h-8 px-3 shrink-0"
-            onClick={handleSave}
-            disabled={isSaving || inputUrl.trim() === currentImageUrl}
-            data-ocid={`category-image-save.${slug}`}
-          >
-            {isSaving ? (
-              <Loader2 size={12} className="animate-spin" />
-            ) : (
-              <Save size={12} />
-            )}
-            <span className="ml-1">{isSaving ? "Saving…" : "Save"}</span>
-          </Button>
-        </div>
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 px-4"
+          onClick={handleSave}
+          disabled={isSaving || fileId.trim() === currentImageUrl}
+          data-ocid={`category-image-save.${slug}`}
+        >
+          {isSaving ? (
+            <Loader2 size={12} className="animate-spin mr-1.5" />
+          ) : (
+            <Save size={12} className="mr-1.5" />
+          )}
+          {isSaving ? "Saving…" : "Save"}
+        </Button>
       </div>
     </div>
   );
@@ -281,8 +264,6 @@ function HomepageManagerTab() {
     { id: string; imageUrl: string; title: string; displayOrder: number }[]
   >([]);
   const [isSavingBanners, setIsSavingBanners] = useState(false);
-
-  // Featured state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSavingFeatured, setIsSavingFeatured] = useState(false);
 
@@ -430,37 +411,17 @@ function HomepageManagerTab() {
                 className="bg-card border border-border rounded-xl p-4 flex flex-col sm:flex-row gap-3 items-start"
                 data-ocid={`homepage-banner-item.${idx + 1}`}
               >
-                {/* Preview */}
-                <div className="w-20 h-14 shrink-0 rounded-lg overflow-hidden border border-border bg-muted flex items-center justify-center">
-                  {banner.imageUrl ? (
-                    <img
-                      src={banner.imageUrl}
-                      alt={banner.title || `Banner ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display =
-                          "none";
-                      }}
-                    />
-                  ) : (
-                    <ImageIcon size={16} className="text-muted-foreground/40" />
-                  )}
+                {/* Image Upload */}
+                <div className="w-full sm:w-52 shrink-0">
+                  <ImageUpload
+                    fileId={banner.imageUrl}
+                    onChange={(fileId) => updateBanner(idx, "imageUrl", fileId)}
+                    ocid={`homepage-banner-image.${idx + 1}`}
+                  />
                 </div>
 
-                {/* Fields */}
-                <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Image URL *</Label>
-                    <Input
-                      value={banner.imageUrl}
-                      onChange={(e) =>
-                        updateBanner(idx, "imageUrl", e.target.value)
-                      }
-                      placeholder="https://example.com/banner.jpg"
-                      className="h-8 text-xs"
-                      data-ocid={`homepage-banner-url-input.${idx + 1}`}
-                    />
-                  </div>
+                {/* Title + Remove */}
+                <div className="flex-1 min-w-0 space-y-2">
                   <div className="space-y-1">
                     <Label className="text-xs">Title (optional)</Label>
                     <Input
@@ -473,19 +434,19 @@ function HomepageManagerTab() {
                       data-ocid={`homepage-banner-title-input.${idx + 1}`}
                     />
                   </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3 hover:border-destructive/40 hover:text-destructive flex items-center gap-1.5"
+                    onClick={() => removeBanner(idx)}
+                    aria-label="Remove banner"
+                    data-ocid={`homepage-banner-remove-button.${idx + 1}`}
+                  >
+                    <X size={13} />
+                    Remove
+                  </Button>
                 </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-2 shrink-0 hover:border-destructive/40 hover:text-destructive"
-                  onClick={() => removeBanner(idx)}
-                  aria-label="Remove banner"
-                  data-ocid={`homepage-banner-remove-button.${idx + 1}`}
-                >
-                  <X size={13} />
-                </Button>
               </div>
             ))}
           </div>
@@ -657,9 +618,9 @@ function CategoriesTab() {
   return (
     <div className="space-y-4">
       <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 text-sm text-muted-foreground">
-        <strong className="text-foreground">How it works:</strong> Paste an
-        image URL for each category and click Save. Changes appear immediately
-        on the homepage and all city pages.
+        <strong className="text-foreground">How it works:</strong> Click the
+        upload button for each category to choose an image from your device.
+        Changes appear immediately on the homepage and all city pages.
       </div>
 
       {isLoading ? (

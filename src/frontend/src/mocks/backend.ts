@@ -101,4 +101,10 @@ export const mockBackend: ExtendedBackend = {
   updateBannerImages: async (_images, _token) => ({ __kind__: "ok" as const, ok: null }),
   getFeaturedProductIds: async () => [],
   updateFeaturedProductIds: async (_ids, _token) => ({ __kind__: "ok" as const, ok: null }),
+  getUploadUrl: async (_filename, _contentType, _token) => ({
+    __kind__: "ok" as const,
+    ok: { uploadUrl: "https://mock-upload-url.example.com", fileId: "mock-file-id" },
+  }),
+  getFileUrl: async (_fileId) => "https://mock-file-url.example.com/image.jpg",
+  deleteFile: async (_fileId, _token) => ({ __kind__: "ok" as const, ok: null }),
 };

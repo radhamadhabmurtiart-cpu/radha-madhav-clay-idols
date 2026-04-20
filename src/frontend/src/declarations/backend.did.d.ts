@@ -99,6 +99,11 @@ export interface _SERVICE {
       { 'err' : string }
   >,
   'adminLogout' : ActorMethod<[string], undefined>,
+  'deleteFile' : ActorMethod<
+    [string, [] | [string]],
+    { 'ok' : null } |
+      { 'err' : string }
+  >,
   'deleteProduct' : ActorMethod<
     [bigint, [] | [string]],
     { 'ok' : null } |
@@ -109,6 +114,7 @@ export interface _SERVICE {
   'getCategoryImages' : ActorMethod<[], Array<CategoryImage>>,
   'getCategoryList' : ActorMethod<[], Array<CategoryInfo>>,
   'getFeaturedProductIds' : ActorMethod<[], Array<bigint>>,
+  'getFileUrl' : ActorMethod<[string], [] | [string]>,
   'getInquiries' : ActorMethod<
     [[] | [string]],
     { 'ok' : Array<InquiryRecord> } |
@@ -123,6 +129,11 @@ export interface _SERVICE {
   'getProduct' : ActorMethod<[bigint], [] | [Product]>,
   'getProducts' : ActorMethod<[], Array<Product>>,
   'getProductsByCategory' : ActorMethod<[string], Array<Product>>,
+  'getUploadUrl' : ActorMethod<
+    [string, string, [] | [string]],
+    { 'ok' : { 'uploadUrl' : string, 'fileId' : string } } |
+      { 'err' : string }
+  >,
   'getVisitors' : ActorMethod<
     [[] | [string]],
     { 'ok' : Array<VisitorProfile> } |

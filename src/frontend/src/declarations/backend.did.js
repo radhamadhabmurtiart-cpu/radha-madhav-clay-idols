@@ -103,6 +103,11 @@ export const idlService = IDL.Service({
       [],
     ),
   'adminLogout' : IDL.Func([IDL.Text], [], []),
+  'deleteFile' : IDL.Func(
+      [IDL.Text, IDL.Opt(IDL.Text)],
+      [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+      [],
+    ),
   'deleteProduct' : IDL.Func(
       [IDL.Nat, IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
@@ -113,6 +118,7 @@ export const idlService = IDL.Service({
   'getCategoryImages' : IDL.Func([], [IDL.Vec(CategoryImage)], ['query']),
   'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
   'getFeaturedProductIds' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+  'getFileUrl' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
   'getInquiries' : IDL.Func(
       [IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
@@ -127,6 +133,16 @@ export const idlService = IDL.Service({
   'getProduct' : IDL.Func([IDL.Nat], [IDL.Opt(Product)], ['query']),
   'getProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
   'getProductsByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Product)], ['query']),
+  'getUploadUrl' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+      [
+        IDL.Variant({
+          'ok' : IDL.Record({ 'uploadUrl' : IDL.Text, 'fileId' : IDL.Text }),
+          'err' : IDL.Text,
+        }),
+      ],
+      [],
+    ),
   'getVisitors' : IDL.Func(
       [IDL.Opt(IDL.Text)],
       [IDL.Variant({ 'ok' : IDL.Vec(VisitorProfile), 'err' : IDL.Text })],
@@ -264,6 +280,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'adminLogout' : IDL.Func([IDL.Text], [], []),
+    'deleteFile' : IDL.Func(
+        [IDL.Text, IDL.Opt(IDL.Text)],
+        [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
+        [],
+      ),
     'deleteProduct' : IDL.Func(
         [IDL.Nat, IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text })],
@@ -274,6 +295,7 @@ export const idlFactory = ({ IDL }) => {
     'getCategoryImages' : IDL.Func([], [IDL.Vec(CategoryImage)], ['query']),
     'getCategoryList' : IDL.Func([], [IDL.Vec(CategoryInfo)], ['query']),
     'getFeaturedProductIds' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
+    'getFileUrl' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
     'getInquiries' : IDL.Func(
         [IDL.Opt(IDL.Text)],
         [IDL.Variant({ 'ok' : IDL.Vec(InquiryRecord), 'err' : IDL.Text })],
@@ -291,6 +313,16 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [IDL.Vec(Product)],
         ['query'],
+      ),
+    'getUploadUrl' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Opt(IDL.Text)],
+        [
+          IDL.Variant({
+            'ok' : IDL.Record({ 'uploadUrl' : IDL.Text, 'fileId' : IDL.Text }),
+            'err' : IDL.Text,
+          }),
+        ],
+        [],
       ),
     'getVisitors' : IDL.Func(
         [IDL.Opt(IDL.Text)],

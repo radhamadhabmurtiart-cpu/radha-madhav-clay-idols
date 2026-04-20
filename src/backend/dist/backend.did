@@ -101,6 +101,11 @@ service : {
       ok: text;
     });
   adminLogout: (token: text) -> ();
+  deleteFile: (fileId: text, sessionToken: opt text) ->
+   (variant {
+      err: text;
+      ok;
+    });
   deleteProduct: (id: nat, sessionToken: opt text) ->
    (variant {
       err: text;
@@ -111,6 +116,7 @@ service : {
   getCategoryImages: () -> (vec CategoryImage) query;
   getCategoryList: () -> (vec CategoryInfo) query;
   getFeaturedProductIds: () -> (vec nat) query;
+  getFileUrl: (fileId: text) -> (opt text) query;
   getInquiries: (sessionToken: opt text) ->
    (variant {
       err: text;
@@ -124,6 +130,15 @@ service : {
   getProduct: (id: nat) -> (opt Product) query;
   getProducts: () -> (vec Product) query;
   getProductsByCategory: (slug: text) -> (vec Product) query;
+  getUploadUrl: (filename: text, contentType: text, sessionToken:
+   opt text) ->
+   (variant {
+      err: text;
+      ok: record {
+            fileId: text;
+            uploadUrl: text;
+          };
+    });
   getVisitors: (sessionToken: opt text) ->
    (variant {
       err: text;

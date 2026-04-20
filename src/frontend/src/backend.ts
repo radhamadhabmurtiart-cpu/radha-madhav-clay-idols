@@ -187,6 +187,13 @@ export interface backendInterface {
         err: string;
     }>;
     adminLogout(token: string): Promise<void>;
+    deleteFile(fileId: string, sessionToken: string | null): Promise<{
+        __kind__: "ok";
+        ok: null;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     deleteProduct(id: bigint, sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: null;
@@ -199,6 +206,7 @@ export interface backendInterface {
     getCategoryImages(): Promise<Array<CategoryImage>>;
     getCategoryList(): Promise<Array<CategoryInfo>>;
     getFeaturedProductIds(): Promise<Array<bigint>>;
+    getFileUrl(fileId: string): Promise<string | null>;
     getInquiries(sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
@@ -217,6 +225,16 @@ export interface backendInterface {
     getProduct(id: bigint): Promise<Product | null>;
     getProducts(): Promise<Array<Product>>;
     getProductsByCategory(slug: string): Promise<Array<Product>>;
+    getUploadUrl(filename: string, contentType: string, sessionToken: string | null): Promise<{
+        __kind__: "ok";
+        ok: {
+            uploadUrl: string;
+            fileId: string;
+        };
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     getVisitors(sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Array<VisitorProfile>;
@@ -320,6 +338,26 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteFile(arg0: string, arg1: string | null): Promise<{
+        __kind__: "ok";
+        ok: null;
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteFile(arg0, to_candid_opt_n5(this._uploadFile, this._downloadFile, arg1));
+                return from_candid_variant_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteFile(arg0, to_candid_opt_n5(this._uploadFile, this._downloadFile, arg1));
+            return from_candid_variant_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async deleteProduct(arg0: bigint, arg1: string | null): Promise<{
         __kind__: "ok";
         ok: null;
@@ -408,6 +446,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getFeaturedProductIds();
             return result;
+        }
+    }
+    async getFileUrl(arg0: string): Promise<string | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFileUrl(arg0);
+                return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFileUrl(arg0);
+            return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
         }
     }
     async getInquiries(arg0: string | null): Promise<{
@@ -506,6 +558,29 @@ export class Backend implements backendInterface {
             return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getUploadUrl(arg0: string, arg1: string, arg2: string | null): Promise<{
+        __kind__: "ok";
+        ok: {
+            uploadUrl: string;
+            fileId: string;
+        };
+    } | {
+        __kind__: "err";
+        err: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUploadUrl(arg0, arg1, to_candid_opt_n5(this._uploadFile, this._downloadFile, arg2));
+                return from_candid_variant_n18(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUploadUrl(arg0, arg1, to_candid_opt_n5(this._uploadFile, this._downloadFile, arg2));
+            return from_candid_variant_n18(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getVisitors(arg0: string | null): Promise<{
         __kind__: "ok";
         ok: Array<VisitorProfile>;
@@ -516,14 +591,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getVisitors(to_candid_opt_n5(this._uploadFile, this._downloadFile, arg0));
-                return from_candid_variant_n18(this._uploadFile, this._downloadFile, result);
+                return from_candid_variant_n19(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getVisitors(to_candid_opt_n5(this._uploadFile, this._downloadFile, arg0));
-            return from_candid_variant_n18(this._uploadFile, this._downloadFile, result);
+            return from_candid_variant_n19(this._uploadFile, this._downloadFile, result);
         }
     }
     async isAdminCaller(): Promise<boolean> {
@@ -643,14 +718,14 @@ export class Backend implements backendInterface {
     }> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateProduct(to_candid_UpdateProductInput_n19(this._uploadFile, this._downloadFile, arg0), to_candid_opt_n5(this._uploadFile, this._downloadFile, arg1));
+                const result = await this.actor.updateProduct(to_candid_UpdateProductInput_n20(this._uploadFile, this._downloadFile, arg0), to_candid_opt_n5(this._uploadFile, this._downloadFile, arg1));
                 return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateProduct(to_candid_UpdateProductInput_n19(this._uploadFile, this._downloadFile, arg0), to_candid_opt_n5(this._uploadFile, this._downloadFile, arg1));
+            const result = await this.actor.updateProduct(to_candid_UpdateProductInput_n20(this._uploadFile, this._downloadFile, arg0), to_candid_opt_n5(this._uploadFile, this._downloadFile, arg1));
             return from_candid_variant_n6(this._uploadFile, this._downloadFile, result);
         }
     }
@@ -828,6 +903,31 @@ function from_candid_variant_n15(_uploadFile: (file: ExternalBlob) => Promise<Ui
     } : value;
 }
 function from_candid_variant_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    ok: {
+        uploadUrl: string;
+        fileId: string;
+    };
+} | {
+    err: string;
+}): {
+    __kind__: "ok";
+    ok: {
+        uploadUrl: string;
+        fileId: string;
+    };
+} | {
+    __kind__: "err";
+    err: string;
+} {
+    return "ok" in value ? {
+        __kind__: "ok",
+        ok: value.ok
+    } : "err" in value ? {
+        __kind__: "err",
+        err: value.err
+    } : value;
+}
+function from_candid_variant_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     ok: Array<_VisitorProfile>;
 } | {
     err: string;
@@ -874,8 +974,8 @@ function to_candid_AddProductInput_n1(_uploadFile: (file: ExternalBlob) => Promi
 function to_candid_ProductCategory_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ProductCategory): _ProductCategory {
     return to_candid_variant_n4(_uploadFile, _downloadFile, value);
 }
-function to_candid_UpdateProductInput_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UpdateProductInput): _UpdateProductInput {
-    return to_candid_record_n20(_uploadFile, _downloadFile, value);
+function to_candid_UpdateProductInput_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UpdateProductInput): _UpdateProductInput {
+    return to_candid_record_n21(_uploadFile, _downloadFile, value);
 }
 function to_candid_opt_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
     return value === null ? candid_none() : candid_some(value);
@@ -916,7 +1016,7 @@ function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
         priceRangeMin: value.priceRangeMin
     };
 }
-function to_candid_record_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function to_candid_record_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     nameBn: string;
     nameEn: string;

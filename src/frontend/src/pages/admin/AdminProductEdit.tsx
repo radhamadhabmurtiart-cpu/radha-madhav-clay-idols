@@ -1,3 +1,4 @@
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,7 @@ import { toast } from "sonner";
 interface SimpleForm {
   nameEn: string;
   category: ProductCategory;
-  imageUrl: string;
+  imageFileId: string;
   price: string;
   description: string;
 }
@@ -36,7 +37,7 @@ export function AdminProductEditPage() {
       setForm({
         nameEn: product.nameEn,
         category: product.category,
-        imageUrl: product.imageIds[0] ?? "",
+        imageFileId: product.imageIds[0] ?? "",
         price:
           product.priceRangeMin > 0n ? product.priceRangeMin.toString() : "",
         description: product.descriptionEn,
@@ -63,7 +64,7 @@ export function AdminProductEditPage() {
       priceRangeMin: priceBig,
       priceRangeMax: priceBig,
       bulkAvailable: product?.bulkAvailable ?? true,
-      imageIds: form.imageUrl.trim() ? [form.imageUrl.trim()] : [],
+      imageIds: form.imageFileId.trim() ? [form.imageFileId.trim()] : [],
     };
   }
 
@@ -74,8 +75,8 @@ export function AdminProductEditPage() {
       toast.error("Product name is required.");
       return;
     }
-    if (!form.imageUrl.trim()) {
-      toast.error("Image URL is required.");
+    if (!form.imageFileId.trim()) {
+      toast.error("Please upload a product image.");
       return;
     }
     try {
@@ -174,33 +175,14 @@ export function AdminProductEditPage() {
           </select>
         </div>
 
-        {/* Image URL */}
+        {/* Image Upload */}
         <div className="space-y-1.5">
-          <Label htmlFor="imageUrl">Image URL *</Label>
-          <Input
-            id="imageUrl"
-            type="url"
-            value={form.imageUrl}
-            onChange={(e) => update("imageUrl", e.target.value)}
-            placeholder="https://example.com/idol-image.jpg"
-            required
-            data-ocid="admin-edit-image-url"
+          <Label>Product Image *</Label>
+          <ImageUpload
+            fileId={form.imageFileId}
+            onChange={(id) => update("imageFileId", id)}
+            ocid="admin-edit-image"
           />
-          {form.imageUrl.trim() && (
-            <div className="w-full h-36 rounded-lg overflow-hidden border border-border bg-muted mt-2">
-              <img
-                src={form.imageUrl}
-                alt="Preview"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Paste a direct image link. The preview updates automatically.
-          </p>
         </div>
 
         {/* Price */}

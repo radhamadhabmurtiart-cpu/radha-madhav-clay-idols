@@ -6,6 +6,7 @@ import ProductMixin "mixins/product-api";
 import CategoryMixin "mixins/category-api";
 import AdminMixin "mixins/admin-api";
 import BannerMixin "mixins/banner-api";
+import ObjectStorageMixin "mixins/object-storage-api";
 import ProductLib "lib/product";
 import CategoryLib "lib/category";
 
@@ -52,6 +53,7 @@ actor {
   include CategoryMixin(categoryImages, isOwner, validateSession);
   include AdminMixin(adminSessions, isOwner);
   include BannerMixin(bannerImages, featuredProductIds, isOwner, validateSession);
+  include ObjectStorageMixin(isOwner, validateSession);
 
   public query func getOwnerPrincipal() : async Text {
     ownerPrincipal.toText();

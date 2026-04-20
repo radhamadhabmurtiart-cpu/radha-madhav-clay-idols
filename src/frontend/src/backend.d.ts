@@ -105,6 +105,13 @@ export interface backendInterface {
         err: string;
     }>;
     adminLogout(token: string): Promise<void>;
+    deleteFile(fileId: string, sessionToken: string | null): Promise<{
+        __kind__: "ok";
+        ok: null;
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     deleteProduct(id: bigint, sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: null;
@@ -117,6 +124,7 @@ export interface backendInterface {
     getCategoryImages(): Promise<Array<CategoryImage>>;
     getCategoryList(): Promise<Array<CategoryInfo>>;
     getFeaturedProductIds(): Promise<Array<bigint>>;
+    getFileUrl(fileId: string): Promise<string | null>;
     getInquiries(sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Array<InquiryRecord>;
@@ -135,6 +143,16 @@ export interface backendInterface {
     getProduct(id: bigint): Promise<Product | null>;
     getProducts(): Promise<Array<Product>>;
     getProductsByCategory(slug: string): Promise<Array<Product>>;
+    getUploadUrl(filename: string, contentType: string, sessionToken: string | null): Promise<{
+        __kind__: "ok";
+        ok: {
+            uploadUrl: string;
+            fileId: string;
+        };
+    } | {
+        __kind__: "err";
+        err: string;
+    }>;
     getVisitors(sessionToken: string | null): Promise<{
         __kind__: "ok";
         ok: Array<VisitorProfile>;
